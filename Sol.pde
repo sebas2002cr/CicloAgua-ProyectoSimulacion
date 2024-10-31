@@ -13,20 +13,22 @@ class Sol {
     this.influenceRange = influenceRange;
     this.radiationForce = radiationForce;
   }
+  
+  
 
-void affectAgents(ArrayList<AgentSystem3D> systems, ArrayList<Nube> nubes) {
+void affectAgents(ArrayList<AgentSystem3D> systems, ArrayList<PVector> cloudCenters) {
     for (AgentSystem3D s : systems) {
         for (Agent3D a : s.agents) {
-            // Solo activa una pequeña cantidad de partículas en la zona caliente que aún no están activas
+            // Verificar si la partícula está en el suelo, en una zona caliente y aún no está activa
             if (a.onFloor && isInHeatedZone(a.pos.x, a.pos.z) && !a.isActive) {
-                if (random(1) < 0.00005) {  
+                if (random(1) < 0.005) {  // Activa solo el 5%
                     float randomFactor = random(0.8, 1.2);
-                    PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);  // Fuerza hacia arriba
+                    PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);
                     a.applyForce(radiationEffect);
-                    a.isActive = true;  // Marcar el agente como activo para la evaporación
+                    a.isActive = true;
 
-                    // Asigna la nube más cercana como objetivo para esta partícula activa
-                    a.targetNube = findClosestNube(a.pos, nubes);
+                    // Asigna el centro de nube más cercano como destino para la partícula
+                    a.targetNube = findClosestCloudCenter(a.pos, cloudCenters);  // Asigna un centro de nube
                 }
             }
         }
@@ -50,6 +52,21 @@ Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
     return closest;
 }
 
+
+// Encontrar el centro de nube más cercano a la partícula
+PVector findClosestCloudCenter(PVector particlePos, ArrayList<PVector> cloudCenters) {
+    PVector closestCenter = cloudCenters.get(0);
+    float minDistance = PVector.dist(particlePos, closestCenter);
+
+    for (PVector center : cloudCenters) {
+        float distance = PVector.dist(particlePos, center);
+        if (distance < minDistance) {
+            closestCenter = center;
+            minDistance = distance;
+        }
+    }
+    return closestCenter;
+}
   boolean isInHeatedZone(float x, float z) {
     int i = int(map(x, -800, 800, 0, 39));
     int j = int(map(z, -800, 800, 0, 39));

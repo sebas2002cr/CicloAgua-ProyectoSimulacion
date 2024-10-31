@@ -20,7 +20,8 @@ int zoneSize = 5;
 ArrayList<AgentSystem3D> systems;
 ArrayList<Attractor> attractors;
 ArrayList<Nube> nubes;
-
+ArrayList<PVector> cloudCenters;  // Centros de nubes invisibles
+int numCloudCenters = 3; 
 
 void setup() {
     size(800, 600, P3D);
@@ -31,9 +32,14 @@ void setup() {
     sol = new Sol(0, -600, 1000, 300, 1200, 3);
     heatMap = new boolean[40][40];
 
-    // Crear nubes en posiciones fijas
-    nubes.add(new Nube(-400, -300, 0, 0.5));
-    nubes.add(new Nube(400, -300, 200, 0.5));
+    // Crear centros de nube en posiciones aleatorias en el cielo
+    cloudCenters = new ArrayList<>();
+    for (int i = 0; i < numCloudCenters; i++) {
+        float x = random(-600, 600);
+        float y = random(-400, -200);  // Ubica las nubes en el "cielo"
+        float z = random(-600, 600);
+        cloudCenters.add(new PVector(x, y, z));
+    }
 }
 
 
@@ -66,17 +72,17 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
-    if (solActive) {
-        sol.display();
-        sol.affectAgents(systems, nubes);  // Llama a affectAgents con ambos parámetros
-        sol.expandHeatZone();
+if (solActive) {
+    sol.display();
+    sol.affectAgents(systems, cloudCenters);  // Cambia nubes por cloudCenters
+    sol.expandHeatZone();
 
-        // Atraer agentes a las nubes cuando el sol esté activo
-        for (Nube nube : nubes) {
-            nube.display();
-            nube.attractAgents(systems);
-        }
+    // Si aún deseas visualizar algo relacionado con nubes, aquí podrías seguir usando las nubes, si es necesario
+    for (Nube nube : nubes) {
+        nube.display();
+        nube.attractAgents(systems);
     }
+}
 
     // Actualizar y eliminar partículas que llegan a la nube
     for (int i = systems.size() - 1; i >= 0; i--) {
@@ -85,7 +91,8 @@ void draw() {
             Agent3D agent = s.agents.get(j);
             agent.update();
             if (agent.checkCollisionWithNube()) {
-                s.agents.remove(j);  // Eliminar agente al colisionar con la nube
+                //s.agents.remove(j);  // Eliminar agente al colisionar con la nube
+                agent.isActive = false;
             }
         }
         s.run();  // Corre el sistema de agentes
