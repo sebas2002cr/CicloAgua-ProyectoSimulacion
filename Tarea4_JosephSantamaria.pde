@@ -62,24 +62,21 @@ void draw() {
 
   fill(100, 100, 100, 150); 
   drawWalls();  
-
-  if (solActive) {
-    sol.display();
-    sol.affectAgents(systems);  
-
-    if (millis() - lastChangeTime > 30000) {
-      sol.chooseNewZone();  
-      lastChangeTime = millis();  
-    }
-  }
   
-  for (Attractor at : attractors) {
-    at.display();
-    at.update();
-  }
-  for (AgentSystem3D s : systems) {
-    s.run();
-  }
+  
+  if (solActive) {
+      sol.display();
+      sol.affectAgents(systems);
+      sol.expandHeatZone();  
+    }
+  
+    for (Attractor at : attractors) {
+      at.display();
+      at.update();
+    }
+    for (AgentSystem3D s : systems) {
+      s.run();
+    }
 }
 
 void drawWalls() {
@@ -138,20 +135,7 @@ void keyPressed() {
    if (key == 'g') {
     generatingAgents = !generatingAgents;  
   }
-   
   
-    
-  
-  
-  
-  
-   if (key == 'a') {
-    Attractor at = new Attractor(0, -1000, 0, 500);  
-    attractors.add(at);
-    for (AgentSystem3D s : systems) {
-      at.addSystem(s);
-    }
-  }
   
   if (key == ' ') {
     attractors.clear();
