@@ -1,6 +1,7 @@
 import java.util.Iterator;
 
 class AgentSystem3D {
+
   PVector pos;
   ArrayList<Agent3D> agents;
   
@@ -8,11 +9,13 @@ class AgentSystem3D {
     pos = new PVector(x, y, z);
     agents = new ArrayList();
   }
+
   void display() {
     for (Agent3D a : agents) {
       a.display();
     }
   }
+
 void update() {
     Iterator<Agent3D> it = agents.iterator();
     while (it.hasNext()) {
