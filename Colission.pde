@@ -7,13 +7,12 @@ class Collision {
         agentSystems = new ArrayList<>();
     }
 
-    // Sistema de agentes a la lista
+    // Agregar un sistema de agentes a la lista
     void addAgentSystem(AgentSystem3D system) {
         agentSystems.add(system);
     }
 
     // Colisiones entre agentes
-
     void checkAgentCollisions() {
         for (AgentSystem3D system : agentSystems) {
             for (int i = 0; i < system.agents.size(); i++) {
@@ -29,7 +28,6 @@ class Collision {
     }
 
     // Colisiones entre un agente y los límites del sistema
-
     void checkBoundaryCollisions() {
         for (AgentSystem3D system : agentSystems) {
             for (Agent3D agent : system.agents) {
@@ -47,24 +45,20 @@ class Collision {
     }
 
     // Colisión entre dos agentes
-
     void handleCollision(Agent3D agentA, Agent3D agentB) {
-
-        // Invertir la velocidad de los agentes al colisionar
+        // Normal de la colisión entre agentes
         PVector collisionNormal = PVector.sub(agentA.pos, agentB.pos).normalize();
-        agentA.vel.reflect(collisionNormal);
-        agentB.vel.reflect(collisionNormal);
+
+        // Aplicar la reflexión de la velocidad manualmente
+        agentA.vel = reflect(agentA.vel, collisionNormal);
+        agentB.vel = reflect(agentB.vel, collisionNormal);
 
         agentA.mass *= 0.95; // Reducir masa del agente A
         agentB.mass *= 0.95; // Reducir masa del agente B
     }
 
     // Colisión de un agente con los límites del sistema
-
     void handleBoundaryCollision(Agent3D agent) {
-
-        // Rebotar el agente al colisionar con el límite
-
         if (agent.pos.x <= -800 || agent.pos.x >= 800) {
             agent.vel.x *= -1;  // Invertir la velocidad en X
             agent.pos.x = constrain(agent.pos.x, -800, 800); // Restringir posición
@@ -73,5 +67,12 @@ class Collision {
             agent.vel.z *= -1;  // Invertir la velocidad en Z
             agent.pos.z = constrain(agent.pos.z, -800, 800); // Restringir posición
         }
+    }
+
+    // Función de reflexión personalizada
+    PVector reflect(PVector incoming, PVector normal) {
+        PVector norm = normal.copy().normalize();
+        float dotProduct = incoming.dot(norm);
+        return PVector.sub(incoming, PVector.mult(norm, 2 * dotProduct));
     }
 }

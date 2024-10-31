@@ -1,3 +1,5 @@
+
+
 class Sol {
   PVector pos;
   float radius;
@@ -12,17 +14,41 @@ class Sol {
     this.radiationForce = radiationForce;
   }
 
-  void affectAgents(ArrayList<AgentSystem3D> systems) {
+void affectAgents(ArrayList<AgentSystem3D> systems, ArrayList<Nube> nubes) {
     for (AgentSystem3D s : systems) {
-      for (Agent3D a : s.agents) {
-        if (a.onFloor && isInHeatedZone(a.pos.x, a.pos.z)) {
-          float randomFactor = random(0.8, 1.2);  
-          PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);  // Fuerza hacia arriba
-          a.applyForce(radiationEffect);
+        for (Agent3D a : s.agents) {
+            // Solo activa una pequeña cantidad de partículas en la zona caliente que aún no están activas
+            if (a.onFloor && isInHeatedZone(a.pos.x, a.pos.z) && !a.isActive) {
+                if (random(1) < 0.00005) {  
+                    float randomFactor = random(0.8, 1.2);
+                    PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);  // Fuerza hacia arriba
+                    a.applyForce(radiationEffect);
+                    a.isActive = true;  // Marcar el agente como activo para la evaporación
+
+                    // Asigna la nube más cercana como objetivo para esta partícula activa
+                    a.targetNube = findClosestNube(a.pos, nubes);
+                }
+            }
         }
-      }
     }
-  }
+}
+
+
+
+// Encontrar la nube más cercana a una partícula activa
+Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
+    Nube closest = nubes.get(0);
+    float minDistance = PVector.dist(particlePos, closest.pos);
+
+    for (Nube nube : nubes) {
+        float distance = PVector.dist(particlePos, nube.pos);
+        if (distance < minDistance) {
+            closest = nube;
+            minDistance = distance;
+        }
+    }
+    return closest;
+}
 
   boolean isInHeatedZone(float x, float z) {
     int i = int(map(x, -800, 800, 0, 39));
