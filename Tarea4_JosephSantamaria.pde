@@ -1,12 +1,14 @@
 //Simluacion del proceso de radiacion termica
-
 Sol sol;
 Nube nube;
+
+ArrayList<Nube> nubes;
+boolean generatingAgents = true;
+boolean isPrecipitating = false;
 
 import peasy.*;
 
 PeasyCam cam;
-boolean generatingAgents = true;  
 boolean solActive = false;  
 boolean[][] heatMap;  
 int currentI = -1, currentJ = -1;  
@@ -14,11 +16,10 @@ int lastChangeTime = 0;
 int zoneSize = 5; 
 ArrayList<AgentSystem3D> systems;
 ArrayList<Attractor> attractors;
-ArrayList<Nube> nubes;
 ArrayList<PVector> cloudCenters;  // Centros de nubes invisibles
 ArrayList<PVector> cloudVelocities; 
 int numCloudCenters = 3; 
-boolean isPrecipitating = false;
+
 
 // Parámetros del terreno
 int cols = 40; // Número de columnas
@@ -31,17 +32,15 @@ float waterLevel = 300; // Altura del agua
 void setup() {
     size(800, 600, P3D);
     cam = new PeasyCam(this, 0, 0, 0, 2000);
-    systems = new ArrayList();
+  
     attractors = new ArrayList();
-    nubes = new ArrayList();
     sol = new Sol(0, -600, 1000, 300, 1200, 7);
     heatMap = new boolean[40][40];
-
-    // Crear centros de nube en posiciones fijas
-    cloudCenters = new ArrayList<>();
-    cloudCenters.add(new PVector(-200, -300, -200));  // Centro de nube 1
-    cloudCenters.add(new PVector(200, -300, 200));    // Centro de nube 2
-
+    
+    systems = new ArrayList<AgentSystem3D>();
+    
+    //systems.add(new AgentSystem3D(0, 300, 0));  // Añadir al menos un sistema de agentes
+   
     // Inicializar velocidades de los centros de nube
     cloudVelocities = new ArrayList<>();
     for (int i = 0; i < numCloudCenters; i++) {
@@ -58,6 +57,8 @@ void draw() {
     lights();
     translate(0, 0, 0); 
     noStroke();
+    
+   
 
     for (int r = 0; r < rows - 1; r++) {
         beginShape(TRIANGLE_STRIP);
@@ -108,6 +109,13 @@ void draw() {
     
     fill(100, 100, 100, 150);
     drawWalls();
+    
+   
+  
+    // Control de precipitación (caída de partículas)
+    //if (isPrecipitating) {
+      //precipitateParticles();
+    //}
 
     if (solActive) {
         sol.display();
@@ -129,9 +137,10 @@ void draw() {
                 agent.isActive = false; // Desactiva la partícula para que se mantenga en la nube
             }
         }
-        s.run();  // Corre el sistema de agentes
+        s.run();  
     }
 }
+
 
 void moveCloudCenters() {
     for (int i = 0; i < cloudCenters.size(); i++) {
@@ -147,21 +156,22 @@ void moveCloudCenters() {
     }
 }
 
+//LLUVIA---------------------------------------------------
 void precipitateParticles() {
     for (int i = systems.size() - 1; i >= 0; i--) {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0; j--) {
             Agent3D agent = s.agents.get(j);
             
-            // Si la partícula ya está en la nube y no está activa, hazla caer
-            if (!agent.isActive && agent.pos.y > 300) {  // Comienza a caer solo si está sobre el suelo
-                PVector gravity = new PVector(0, 0.2, 0);  // Gravedad aumentada para caída más rápida
+            // si la partícula ya está en la nube y no está activa, hazla caer
+            if (!agent.isActive && agent.pos.y > 300) {  // comienza a caer solo si está sobre el suelo
+                PVector gravity = new PVector(0, 0.2, 0);  // gravedad aumentada para caída más rápida
                 agent.applyForce(gravity);
 
-                // Detén la partícula al llegar al suelo
+                // detén la partícula al llegar al suelo
                 if (agent.pos.y >= 300) {
-                    agent.pos.y = 300;  // Asegura que esté en el suelo
-                    agent.vel.set(0, 0, 0);  // Detén la velocidad
+                    agent.pos.y = 300;  // asegura que esté en el suelo
+                    agent.vel.set(0, 0, 0);  // detén la velocidad
                 }
             }
         }
@@ -169,8 +179,8 @@ void precipitateParticles() {
 }
 
 
+//MUROS DE LA CAJA --------------
 void drawWalls() {
-  
   beginShape(QUADS);
   vertex(-800, 300, -800); 
   vertex(800, 300, -800);
@@ -199,43 +209,35 @@ void drawWalls() {
   vertex(800, -300, -800);
   endShape();
 }
-void keyPressed() {
-  
-  
-  if (key == 's') {
-    
-    AgentSystem3D s = new AgentSystem3D(
-      0,   
-      300, 
-      0   
-    );
 
+
+//TECLAS ------------------------------
+void keyPressed() {
+  if (key == 's') {
+    AgentSystem3D s = new AgentSystem3D(0, 300, 0);
     systems.add(s);
   }
   
-  if (key == 't') {  // Presiona 't' para encender o apagar el sol
-        sol.toggleSun();
-    }
+  if (key == 't') {  // 't' para encender o apagar el sol
+    sol.toggleSun();
+  }
     
   if (key == 'x') {
     solActive = !solActive;  
   }
   
-  
+  if (key == 'p' && !sol.isActive) {  //activar precipitación solo cuando el sol esté apagado
+    isPrecipitating = !isPrecipitating;
+  }
     
-if (key == 'p' && !sol.isActive) {  // Activar precipitación solo cuando el sol esté apagado
-        isPrecipitating = !isPrecipitating;
-    }
-    
-    
-    
-   if (key == 'g') {
+  if (key == 'g') {
     generatingAgents = !generatingAgents;  
   }
-  
   
   if (key == ' ') {
     attractors.clear();
     systems.clear();
   }
 } 
+
+//arreglar flocking

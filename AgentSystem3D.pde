@@ -4,11 +4,18 @@ class AgentSystem3D {
 
   PVector pos;
   ArrayList<Agent3D> agents;
+  ArrayList<Attractor> attractors;
   
   AgentSystem3D(float x, float y, float z) {
     pos = new PVector(x, y, z);
     agents = new ArrayList();
+    attractors = new ArrayList<Attractor>();
   }
+  
+  // Método para agregar un attractor a este sistema
+   void addAttractor(Attractor attractor) {
+     attractors.add(attractor);
+   }
 
   void display() {
     for (Agent3D a : agents) {
@@ -22,6 +29,9 @@ void update() {
       Agent3D a = it.next();
       if (a.isDead()) {
         it.remove(); 
+        a.align(agents);      
+        a.separate(agents);   
+        a.cohere(agents);     
         a.update();
       }      
     }
@@ -56,4 +66,30 @@ void addAgent() {
     agents.add(agent3);
   }
 }
+
+//FLOCKING ----------------
+  void align() {
+    for (Agent3D a : agents) {
+      a.align(agents);
+    }
+  }
+  
+  void separate() {
+    for (Agent3D a : agents) {
+      a.separate(agents);
+    }
+  }
+  void cohere() {
+    for (Agent3D a : agents) {
+      a.cohere(agents);
+    }
+  }
+  
+  void flocking(){
+    this.align();
+    this.separate();
+    this.cohere();
+  }
+
+
 }
