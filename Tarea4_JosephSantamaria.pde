@@ -208,6 +208,7 @@ void drawWalls() {
   vertex(800, -300, 800); 
   vertex(800, -300, -800);
   endShape();
+
 }
 
 

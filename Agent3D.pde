@@ -21,11 +21,12 @@ class Agent3D {
   boolean onFloor;
   boolean attracted;  
   boolean isDead;  
+  float maxHeight = -200;
 
   float damp;
   
   //FLOCKING VARIABLES ----------
-  float maxSteeringForce = 0.8;
+  float maxSteeringForce = 0.1;
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
   float wanderLookAhead = 50;
@@ -52,7 +53,7 @@ class Agent3D {
     acc = new PVector(0, 0, 0);
     
     //COMPORTAMIENTOS PARA EL FLOCKING -------
-    maxSteeringForce = 0.8;
+    maxSteeringForce = 0.1;
     arrivalRadius = 100;
     wanderLookAhead = 50;
     wanderRadius = 40;
@@ -71,7 +72,7 @@ class Agent3D {
     c = color(255, 255, 255, 255); 
 
     
-    maxSpeed = 20;
+    maxSpeed = 5;
     mass = random(500, 800);
     massLoss = 0.8;
     angX = random(0, PI);
@@ -107,78 +108,76 @@ class Agent3D {
   
   
 void update() {
-  if (isActive) {
-      // Define una dirección ascendente hacia el "cielo"
-      PVector upwardForce = new PVector(0, -0.02, 0);
-      applyForce(upwardForce);
-      if (pos.y < -200) {
-        vel.y = 0;
-        acc.y = 0;
-        isActive = false;
-      }
+    if (isActive) {
+        // Aplica la fuerza ascendente solo si está por debajo de maxHeight
+        if (pos.y > maxHeight) {
+            PVector upwardForce = new PVector(0, -0.000001, 0); // Ajusta según la dirección correcta
+            applyForce(upwardForce);
+        } else {
+            // Detiene la ascensión al alcanzar maxHeight
+            vel.y = 0;  // Detiene la componente vertical de la velocidad
+            acc.y = 0;
+            isActive = false;  // Marca la partícula como inactiva para detener la ascensión
+        }
     }
+
+    // Actualización de la posición y otras propiedades
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
-    
-    //Amortiguación 
+
+    // Lógica adicional para las paredes y el comportamiento en el suelo
+    if (pos.y >= 300) {
+        onFloor = true;
+        pos.y = 300;
+    }
+
+    // Amortiguación 
     float damp = 0.5;
-    
+
     if (!onFloor && !attracted) {
-      acc.add(new PVector(0, 0.001, 0)); 
+        acc.add(new PVector(0, 0.001, 0)); 
     }
-    
+
     if (onFloor && attracted) {
-      
-      
-      PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); // Cambiar dirección del viento hacia arriba
-      vel.add(viento);
+        PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); // Cambiar dirección del viento hacia arriba
+        vel.add(viento);
     }
-    
-    
-        
+
     if (pos.x <= -800 || pos.x >= 800) {
-      
         vel.x *= -1;  
         pos.x = constrain(pos.x, -800, 800);  
     }
-    
+
     if (pos.z <= -800 || pos.z >= 800) {
         vel.z *= -1;  
         pos.z = constrain(pos.z, -800, 800); 
     }
 
-
-    
-
     float dragCoefficient = 0.01;
     PVector drag = vel.copy();
     drag.mult(-dragCoefficient); 
-    
     acc.add(drag);
 
     vel.add(acc);
     pos.add(vel);
 
     if (pos.y >= 300) {
-    onFloor = true;
-    pos.y = 300; 
+        onFloor = true;
+        pos.y = 300; 
 
-        
-        //PUSE UN VIENTO PARA QUE FUESE MAS NATURAL 
-
+        // Viento natural
         PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6)); 
         vel.add(viento); 
     }
 
     acc.mult(0);    
-    
 
-    
     if (mass < 0.1) {
         mass = 0.1; 
     }
 }
+
 
 // Atrae al agente hacia el attractor más cercano
     void attract() {
