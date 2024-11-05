@@ -67,7 +67,6 @@ class Agent3D {
   }
 void update() {
   
-  
     if (isActive && targetNube != null) {  // Solo las partículas activas suben
         PVector directionToNube = PVector.sub(targetNube, pos).normalize().mult(0.5);
         applyForce(directionToNube);
@@ -76,6 +75,7 @@ void update() {
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 5) {
             vel.set(0, 0, 0);  // Detener la partícula
+
             acc.set(0, 0, 0);
             isActive = false;  // Marcarla como estacionaria en su posición
         }
@@ -154,7 +154,9 @@ boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 10) {
-            return true;  // Señala que la partícula debe ser eliminada
+
+            return true;  // Señala que la partícula 
+
         }
     }
     return false;

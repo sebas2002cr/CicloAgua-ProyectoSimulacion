@@ -1,3 +1,6 @@
+//Simluacion del proceso de radiacion termica
+
+
 Sol sol;
 Nube nube;
 
@@ -14,7 +17,6 @@ ArrayList<AgentSystem3D> systems;
 ArrayList<Attractor> attractors;
 ArrayList<Nube> nubes;
 ArrayList<PVector> cloudCenters;  // Centros de nubes invisibles
-int numCloudCenters = 3; 
 
 // Parámetros del terreno
 int cols = 40; // Número de columnas
@@ -24,23 +26,30 @@ float heightScale = 300; // Escala de altura del terreno
 
 float waterLevel = 300; // Altura del agua
 
+ArrayList<PVector> cloudVelocities; 
+int numCloudCenters = 3; 
+boolean isPrecipitating = false;
+
 void setup() {
     size(800, 600, P3D);
     cam = new PeasyCam(this, 0, 0, 0, 2000);
     systems = new ArrayList();
     attractors = new ArrayList();
     nubes = new ArrayList();
+
     sol = new Sol(0, -600, 1000, 300, 1200, 3);
-    
     heatMap = new boolean[40][40];
 
-    // Crear centros de nube en posiciones aleatorias en el cielo
-    cloudCenters = new ArrayList<>();
+     cloudCenters.add(new PVector(-200, -300, -200));  // Centro de nube 1
+    cloudCenters.add(new PVector(200, -300, 200));    // Centro de nube 2
+
+    // Inicializar velocidades de los centros de nube
+    cloudVelocities = new ArrayList<>();
     for (int i = 0; i < numCloudCenters; i++) {
-        float x = random(-600, 600);
-        float y = random(-400, -200);  // Ubica las nubes en el "cielo"
-        float z = random(-600, 600);
-        cloudCenters.add(new PVector(x, y, z));
+        float vx = random(-1, 1);
+        float vy = 0;  // Mantén las nubes en el mismo plano
+        float vz = random(-1, 1);
+        cloudVelocities.add(new PVector(vx, vy, vz));
     }
 }
 
@@ -101,76 +110,134 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
     
+
     if (solActive) {
         sol.display();
         sol.affectAgents(systems, cloudCenters);
         sol.expandHeatZone();
-
-        for (Nube nube : nubes) {
-            nube.display();
-            nube.attractAgents(systems);
-        }
+    } else if (isPrecipitating) {
+        moveCloudCenters();  // Mueve las nubes lentamente
+        precipitateParticles();  // Activa la precipitación de partículas
     }
 
-    // Actualizar y eliminar partículas que llegan a la nube
+    // Actualizar y detener partículas en la nube sin eliminarlas
     for (int i = systems.size() - 1; i >= 0; i--) {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0; j--) {
             Agent3D agent = s.agents.get(j);
             agent.update();
+            
             if (agent.checkCollisionWithNube()) {
-                agent.isActive = false;
+                agent.isActive = false; // Desactiva la partícula para que se mantenga en la nube
             }
         }
-        s.run();
+        s.run();  // Corre el sistema de agentes
     }
 }
+
+void moveCloudCenters() {
+    for (int i = 0; i < cloudCenters.size(); i++) {
+        PVector center = cloudCenters.get(i);
+        PVector velocity = cloudVelocities.get(i).mult(0.1);  // Reducir velocidad para movimiento lento
+
+        // Actualiza la posición del centro de nube
+        center.add(velocity);
+
+        // Verifica los límites y hace que la nube rebote
+        if (center.x < -800 || center.x > 800) velocity.x *= -1;
+        if (center.z < -800 || center.z > 800) velocity.z *= -1;
+    }
+}
+
+void precipitateParticles() {
+    for (int i = systems.size() - 1; i >= 0; i--) {
+        AgentSystem3D s = systems.get(i);
+        for (int j = s.agents.size() - 1; j >= 0; j--) {
+            Agent3D agent = s.agents.get(j);
+            
+            // Si la partícula ya está en la nube y no está activa, hazla caer
+            if (!agent.isActive && agent.pos.y > 300) {  // Comienza a caer solo si está sobre el suelo
+                PVector gravity = new PVector(0, 0.2, 0);  // Gravedad aumentada para caída más rápida
+                agent.applyForce(gravity);
+
+                // Detén la partícula al llegar al suelo
+                if (agent.pos.y >= 300) {
+                    agent.pos.y = 300;  // Asegura que esté en el suelo
+                    agent.vel.set(0, 0, 0);  // Detén la velocidad
+                }
+            }
+        }
+    }
+}
+
 
 void drawWalls() {
-    beginShape(QUADS);
-    vertex(-800, 300, -800); 
-    vertex(800, 300, -800);
-    vertex(800, -300, -800); 
-    vertex(-800, -300, -800);
-    endShape();
-    
-    beginShape(QUADS);
-    vertex(-800, 300, 800); 
-    vertex(800, 300, 800);
-    vertex(800, -300, 800); 
-    vertex(-800, -300, 800);
-    endShape();
-    
-    beginShape(QUADS);
-    vertex(-800, 300, -800); 
-    vertex(-800, 300, 800); 
-    vertex(-800, -300, 800); 
-    vertex(-800, -300, -800);
-    endShape();
-    
-    beginShape(QUADS);
-    vertex(800, 300, -800); 
-    vertex(800, 300, 800); 
-    vertex(800, -300, 800); 
-    vertex(800, -300, -800);
-    endShape();
+  
+  beginShape(QUADS);
+  vertex(-800, 300, -800); 
+  vertex(800, 300, -800);
+  vertex(800, -300, -800); 
+  vertex(-800, -300, -800);
+  endShape();
+  
+  beginShape(QUADS);
+  vertex(-800, 300, 800); 
+  vertex(800, 300, 800);
+  vertex(800, -300, 800); 
+  vertex(-800, -300, 800);
+  endShape();
+  
+  beginShape(QUADS);
+  vertex(-800, 300, -800); 
+  vertex(-800, 300, 800);
+  vertex(-800, -300, 800); 
+  vertex(-800, -300, -800);
+  endShape();
+  
+  beginShape(QUADS);
+  vertex(800, 300, -800); 
+  vertex(800, 300, 800);
+  vertex(800, -300, 800); 
+  vertex(800, -300, -800);
+  endShape();
 }
-
 void keyPressed() {
-    if (key == 's') {
-        AgentSystem3D s = new AgentSystem3D(0, waterLevel, 0); // Cambia aquí también
-        systems.add(s);
-    }
-    if (key == 'x') {
-        solActive = !solActive;  
-    } 
+  
+  
+  if (key == 's') {
     
-    if (key == 'g') {
-        generatingAgents = !generatingAgents;  
+    AgentSystem3D s = new AgentSystem3D(
+      0,   
+      300, 
+      0   
+    );
+
+    systems.add(s);
+  }
+  
+  if (key == 't') {  // Presiona 't' para encender o apagar el sol
+        sol.toggleSun();
     }
     
-    if (key == ' ') {
-        attractors.clear();
-        systems.clear();
+  if (key == 'x') {
+    solActive = !solActive;  
+  }
+  
+  
+    
+if (key == 'p' && !sol.isActive) {  // Activar precipitación solo cuando el sol esté apagado
+        isPrecipitating = !isPrecipitating;
     }
-}
+    
+    
+    
+   if (key == 'g') {
+    generatingAgents = !generatingAgents;  
+  }
+  
+  
+  if (key == ' ') {
+    attractors.clear();
+    systems.clear();
+  }
+} 
