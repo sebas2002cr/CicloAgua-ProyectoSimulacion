@@ -3,6 +3,7 @@ enum BorderBehaviour {
 }
 
 class Agent3D {
+  boolean isAffectedBySun = false;
   boolean isActive = false;
   PVector targetNube = null;
   PVector pos;
@@ -21,7 +22,9 @@ class Agent3D {
   boolean onFloor;
   boolean attracted;  
   boolean isDead;  
-  float maxHeight = -200;
+  float maxHeight = -300;
+  float minHeight = -250;   
+
 
   float damp;
   
@@ -95,6 +98,8 @@ class Agent3D {
   boolean isDead() {
     return mass < 0.1;
   }
+  
+  
  void display() {
     if (!isDead) {  
       fill(c);
@@ -109,19 +114,16 @@ class Agent3D {
   
 void update() {
     if (isActive) {
-        // Aplica la fuerza ascendente solo si está por debajo de maxHeight
         if (pos.y > maxHeight) {
-            PVector upwardForce = new PVector(0, -0.000001, 0); // Ajusta según la dirección correcta
+            PVector upwardForce = new PVector(0, -0.000001, 0); 
             applyForce(upwardForce);
         } else {
-            // Detiene la ascensión al alcanzar maxHeight
-            vel.y = 0;  // Detiene la componente vertical de la velocidad
+            vel.y = 0;  
             acc.y = 0;
-            isActive = false;  // Marca la partícula como inactiva para detener la ascensión
+            isActive = false;  
         }
     }
 
-    // Actualización de la posición y otras propiedades
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
@@ -176,16 +178,26 @@ void update() {
     if (mass < 0.1) {
         mass = 0.1; 
     }
+    
+    if (pos.y < maxHeight) {
+    pos.y = maxHeight;
+    vel.y = 0;  
 }
 
+}
 
-// Atrae al agente hacia el attractor más cercano
+void setAffectedBySun(boolean affected) {
+    isAffectedBySun = affected;
+    isActive = affected;
+  }
+
+
     void attract() {
         // Obtener el attractor más cercano (si existe)
         Attractor closestAttractor = getClosestAttractor();
         if (closestAttractor != null) {
             PVector r = PVector.sub(closestAttractor.pos, pos);
-            float d2 = constrain(r.magSq(), 1, 2000);  // Evita la división por 0
+            float d2 = constrain(r.magSq(), 1, 2000);  
             r.normalize();
             r.mult(closestAttractor.g * closestAttractor.mass * mass / d2);  // Ley de gravedad simplificada
             applyForce(r);
@@ -199,7 +211,7 @@ boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 10) {
-            return true;  // Señala que la partícula 
+            return true;   
         }
     }
     return false;
@@ -230,6 +242,8 @@ void applyForce(PVector f) {
 //FLOCKING -------------
 boolean debug = false;
 void align(ArrayList<Agent3D> agents) {
+  
+  
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {

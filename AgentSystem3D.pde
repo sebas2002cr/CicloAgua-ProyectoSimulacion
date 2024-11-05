@@ -97,7 +97,6 @@ void addAgent() {
     }
   }
   
-// Método de flocking que llama a align, separate y cohere para cada agente
     void flocking() {
         for (Agent3D agent : agents) {
             agent.align(agents);
