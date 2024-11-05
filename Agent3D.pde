@@ -107,20 +107,16 @@ class Agent3D {
   
   
 void update() {
-  if (isActive && targetNube != null) {  // Solo las partículas activas suben
-        PVector directionToNube = PVector.sub(targetNube, pos).normalize().mult(0.5);
-        applyForce(directionToNube);
-
-        // Verifica si la partícula está suficientemente cerca de su posición en la nube
-        float distanceToNube = PVector.dist(pos, targetNube);
-        if (distanceToNube < 5) {
-            vel.set(0, 0, 0);  // Detener la partícula completamente
-            acc.set(0, 0, 0);
-            isActive = false;  // Marcarla como estacionaria en su posición
-        }
+  if (isActive) {
+      // Define una dirección ascendente hacia el "cielo"
+      PVector upwardForce = new PVector(0, -0.02, 0);
+      applyForce(upwardForce);
+      if (pos.y < -200) {
+        vel.y = 0;
+        acc.y = 0;
+        isActive = false;
+      }
     }
-
-    // Actualizar posición y velocidad
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
@@ -238,67 +234,54 @@ void align(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-      if (this != a && pos.dist(a.pos) < alignmentRadio) {
-        result.add(a.vel);
-        n++;
-      }
+        if (this != a && pos.dist(a.pos) < alignmentRadio) {
+            result.add(a.vel);
+            n++;
+        }
     }
     if (n > 0) {
-      result.div(n);
-      result.setMag(alignmentRatio);
-      result.limit(maxSteeringForce);
-      applyForce(result);
+        result.div(n);
+        result.setMag(alignmentRatio);
+        result.limit(maxSteeringForce);
+        applyForce(result);
     }
-    if (debug) {
-      fill(255, 10);
-      noStroke();
-      ellipse(pos.x, pos.y, alignmentRadio * 2, alignmentRadio * 2);
-    }
-  }
-  void separate(ArrayList<Agent3D> agents) {
+}
+
+void separate(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-      if (this != a && pos.dist(a.pos) < separationRadio) {
-        PVector dif = PVector.sub(pos, a.pos);
-        dif.normalize();
-        dif.div(pos.dist(a.pos));
-        result.add(dif);
-        n++;
-      }
+        if (this != a && pos.dist(a.pos) < separationRadio) {
+            PVector dif = PVector.sub(pos, a.pos);
+            dif.normalize();
+            dif.div(pos.dist(a.pos));
+            result.add(dif);
+            n++;
+        }
     }
     if (n > 0) {
-      result.div(n);
-      result.setMag(separationRatio);
-      result.limit(maxSteeringForce);
-      applyForce(result);
+        result.div(n);
+        result.setMag(separationRatio);
+        result.limit(maxSteeringForce);
+        applyForce(result);
     }
-    if (debug) {
-      fill(255, 10);
-      noStroke();
-      ellipse(pos.x, pos.y, separationRadio * 2, separationRadio * 2);
-    }
-  }
-  void cohere(ArrayList<Agent3D> agents) {
+}
+
+void cohere(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-      if (this != a && pos.dist(a.pos) < cohesionRadio) {
-        result.add(a.pos);
-        n++;
-      }
+        if (this != a && pos.dist(a.pos) < cohesionRadio) {
+            result.add(a.pos);
+            n++;
+        }
     }
     if (n > 0) {
-      result.div(n);
-      PVector dif = PVector.sub(result, pos);
-      dif.setMag(cohesionRatio);
-      dif.limit(maxSteeringForce);
-      applyForce(dif);
+        result.div(n);
+        PVector dif = PVector.sub(result, pos);
+        dif.setMag(cohesionRatio);
+        dif.limit(maxSteeringForce);
+        applyForce(dif);
     }
-    if (debug) {
-      fill(255, 10);
-      noStroke();
-      ellipse(pos.x, pos.y, cohesionRadio * 2, cohesionRadio * 2);
-    }
-  }
+}
 }

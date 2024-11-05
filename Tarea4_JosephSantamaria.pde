@@ -119,7 +119,7 @@ void draw() {
 
     if (solActive) {
         sol.display();
-        sol.affectAgents(systems, cloudCenters);
+        sol.affectAgents(systems);
         sol.expandHeatZone();
     } else if (isPrecipitating) {
         moveCloudCenters();  // Mueve las nubes lentamente

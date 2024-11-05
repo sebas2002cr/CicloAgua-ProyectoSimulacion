@@ -38,13 +38,21 @@ void update() {
     addAgent();
 }
 
+
 void run() {
-  for (Agent3D a : agents) {
-    a.update();
-    a.display();
-  }
-  addAgent();  
+  flocking();
+    for (Agent3D a : agents) {
+        if (a.isActive) {
+            a.align(agents);
+            a.separate(agents);
+            a.cohere(agents);
+        }
+        a.update();
+        a.display();
+    }
+    addAgent();
 }
+
 
 void addAgent() {
   if (!generatingAgents) return;  
@@ -85,11 +93,15 @@ void addAgent() {
     }
   }
   
-  void flocking(){
-    this.align();
-    this.separate();
-    this.cohere();
-  }
+// Método de flocking que llama a align, separate y cohere para cada agente
+    void flocking() {
+        for (Agent3D agent : agents) {
+            agent.align(agents);
+            agent.separate(agents);
+            agent.cohere(agents);
+        }
+    }
+
 
 
 }
