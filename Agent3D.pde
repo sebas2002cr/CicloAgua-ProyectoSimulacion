@@ -71,11 +71,10 @@ void update() {
         PVector directionToNube = PVector.sub(targetNube, pos).normalize().mult(0.5);
         applyForce(directionToNube);
 
-        // Verifica si la partícula está lo suficientemente cerca de su centro y se detiene
+        // Verifica si la partícula está suficientemente cerca de su posición en la nube
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 5) {
-            vel.set(0, 0, 0);  // Detener la partícula
-
+            vel.set(0, 0, 0);  // Detener la partícula completamente
             acc.set(0, 0, 0);
             isActive = false;  // Marcarla como estacionaria en su posición
         }
@@ -154,9 +153,7 @@ boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 10) {
-
             return true;  // Señala que la partícula 
-
         }
     }
     return false;
