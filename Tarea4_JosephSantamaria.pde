@@ -20,6 +20,7 @@ ArrayList<PVector> cloudCenters;  // Centros de nubes invisibles
 ArrayList<PVector> cloudVelocities; 
 int numCloudCenters = 3; 
 
+boolean showStatistics = false;
 
 // Parámetros del terreno
 int cols = 40; // Número de columnas
@@ -34,7 +35,7 @@ void setup() {
     cam = new PeasyCam(this, 0, 0, 0, 2000);
   
     attractors = new ArrayList();
-    sol = new Sol(0, -600, 1000, 300, 1200, 7);
+    sol = new Sol(0, -600, 1000, 300, 1950, 7);
     heatMap = new boolean[40][40];
     
     systems = new ArrayList<AgentSystem3D>();
@@ -57,8 +58,6 @@ void draw() {
     lights();
     translate(0, 0, 0); 
     noStroke();
-    
-   
 
     for (int r = 0; r < rows - 1; r++) {
         beginShape(TRIANGLE_STRIP);
@@ -83,10 +82,19 @@ void draw() {
             float y1 = map(noise(c * currentNoiseScale, r * currentNoiseScale), 0, 1, 0, currentHeightScale);
             float y2 = map(noise(c * currentNoiseScale, (r + 1) * currentNoiseScale), 0, 1, 0, currentHeightScale);
             
-            // Gradiente de color para simular el terreno
-            float t = map(y1, 0, heightScale, 0, 1);
-            color terrainColor = lerpColor(color(34, 139, 34), color(139, 69, 19), t); // verde a café
-            fill(terrainColor);
+            int i = int(map(c, 0, cols - 1, 0, 39));
+            int j = int(map(r, 0, rows - 1, 0, 39));
+
+            if (heatMap[i][j]) {
+                float t = map(y1, 0, heightScale, 0, 1);
+                color terrainColor = lerpColor(color(34, 139, 34), color(255, 223, 0), t); // verde a amarillo
+                fill(terrainColor);
+            } else {
+
+              float t = map(y1, 0, heightScale, 0, 1);
+                color terrainColor = lerpColor(color(34, 139, 34), color(139, 69, 19), t); // verde a café
+                fill(terrainColor);
+            }
 
             // Dibujar los vértices del terreno
             float x = map(c, 0, cols - 1, -800, 800);
@@ -139,6 +147,10 @@ void draw() {
         }
         s.run();  
     }
+    
+      if (showStatistics) {
+        displayStatistics();
+    }
 }
 
 
@@ -176,6 +188,34 @@ void precipitateParticles() {
             }
         }
     }
+}
+
+void displayStatistics() {
+  
+  
+    float heatPercentage = sol.calculateHeatPercentage();
+    
+    fill(0);  
+    
+    textSize(16);
+    
+    textAlign(LEFT);
+    
+    text("Estadísticas de Terreno", 20, -200);
+    
+    text("Terreno Calentado: " + nf(heatPercentage, 1, 2) + "%", 20,  -170);
+    
+    float barWidth = 200;  
+    float barHeight = 20;  
+    float filledWidth = map(heatPercentage, 0, 100, 0, barWidth);  
+
+    noFill();
+    stroke(0);
+    rect(20, -150, barWidth, barHeight);
+
+    noStroke();
+    fill(255, 165, 0);  
+    rect(20, -150, filledWidth, barHeight);
 }
 
 
@@ -239,6 +279,12 @@ void keyPressed() {
     attractors.clear();
     systems.clear();
   }
+  
+  if (key == 'i' || key == 'I') {  
+        showStatistics = !showStatistics;
+    }
+    
+  
 } 
 
 //arreglar flocking

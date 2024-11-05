@@ -37,7 +37,6 @@ void affectAgents(ArrayList<AgentSystem3D> systems) {
 
 
 
-// Encontrar la nube más cercana a una partícula activa
 Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
     Nube closest = nubes.get(0);
     float minDistance = PVector.dist(particlePos, closest.pos);
@@ -75,25 +74,57 @@ Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
     }
   }
 
-  void expandHeatZone() {
-    int centerX = int(map(pos.x, -800, 800, 0, 39));
-    int centerZ = int(map(pos.z, -800, 800, 0, 39));
-    float maxRadius = influenceRange;  
+void expandHeatZone() {
+    float maxRadius = 1950;  
+
+    boolean allHeated = true;
 
     for (int i = 0; i < 40; i++) {
-      for (int j = 0; j < 40; j++) {
-        float x = map(i, 0, 39, -800, 800);
-        float z = map(j, 0, 39, -800, 800);
-        float distance = dist(x, 0, z, pos.x, 0, pos.z);
+      
+        for (int j = 0; j < 40; j++) {
+          
+            float x = map(i, 0, 39, -800, 800);
+            float z = map(j, 0, 39, -800, 800);
+            float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
-        if (distance < heatRadius) {
-          heatMap[i][j] = true;
+            if (distance < heatRadius) {
+                heatMap[i][j] = true;
+            }
+
+            if (!heatMap[i][j]) {
+                allHeated = false;
+            }
         }
-      }
     }
+    
+    //Por si falla , aqui hay una ayuda
+    
 
-    if (heatRadius < maxRadius) {
-      heatRadius += 5;  
+    if (heatRadius < maxRadius && !allHeated) {
+      
+        heatRadius += 2;  
+    } else {
+        heatRadius = maxRadius;  
     }
-  }
+}
+
+
+float calculateHeatPercentage() {
+    int heatedCells = 0;
+    int totalCells = 40 * 40;  
+
+    for (int i = 0; i < 40; i++) {
+        for (int j = 0; j < 40; j++) {
+            if (heatMap[i][j]) {
+                heatedCells++;
+            }
+        }
+    }
+    float percentage = (float) heatedCells / totalCells * 100;
+
+    return percentage;  // Retorna el porcentaje de terreno calentado
+}
+
+
+
 }
