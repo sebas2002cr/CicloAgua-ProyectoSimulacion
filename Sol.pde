@@ -6,6 +6,7 @@ class Sol {
   float influenceRange;
   float radiationForce;
   float heatRadius = 50; 
+  boolean isActive = true;
 
   Sol(float x, float y, float z, float radius, float influenceRange, float radiationForce) {
     pos = new PVector(x, y, z);
@@ -13,27 +14,32 @@ class Sol {
     this.influenceRange = influenceRange;
     this.radiationForce = radiationForce;
   }
-  
+  void toggleSun() {
+        isActive = !isActive;  // Cambia el estado del sol
+    }
   
 
 void affectAgents(ArrayList<AgentSystem3D> systems, ArrayList<PVector> cloudCenters) {
+  if (!isActive) return;
     for (AgentSystem3D s : systems) {
         for (Agent3D a : s.agents) {
-            // Verificar si la partícula está en el suelo, en una zona caliente y aún no está activa
             if (a.onFloor && isInHeatedZone(a.pos.x, a.pos.z) && !a.isActive) {
-                if (random(1) < 0.005) {  // Activa solo el 5%
+                if (random(1) < 0.005) {  // Activa solo el 5% en la zona de radiación
                     float randomFactor = random(0.8, 1.2);
                     PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);
                     a.applyForce(radiationEffect);
                     a.isActive = true;
 
-                    // Asigna el centro de nube más cercano como destino para la partícula
-                    a.targetNube = findClosestCloudCenter(a.pos, cloudCenters);  // Asigna un centro de nube
+                    // Asigna un destino en una posición aleatoria alrededor del centro de nube
+                    PVector closestCenter = findClosestCloudCenter(a.pos, cloudCenters);
+                    PVector randomOffset = PVector.random3D().mult(random(30, 60));  // Offset aleatorio para dispersión
+                    a.targetNube = PVector.add(closestCenter, randomOffset);
                 }
             }
         }
     }
 }
+
 
 
 
@@ -77,12 +83,15 @@ PVector findClosestCloudCenter(PVector particlePos, ArrayList<PVector> cloudCent
   }
 
   void display() {
+    
+    if (isActive) { 
     noStroke();
     fill(255, 204, 0);  
     pushMatrix();
     translate(pos.x, pos.y, pos.z);
     sphere(radius);  
     popMatrix();
+    }
   }
 
   void expandHeatZone() {
