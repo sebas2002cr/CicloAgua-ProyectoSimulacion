@@ -3,7 +3,7 @@ class Sol {
   float radius;
   float influenceRange;
   float radiationForce;
-  float heatRadius = 50; 
+  float heatRadius = 100; 
   boolean isActive = true;
 
   Sol(float x, float y, float z, float radius, float influenceRange, float radiationForce) {
@@ -77,23 +77,25 @@ Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
     }
   }
 
-void expandHeatZone() {
-    float maxRadius = 1950;
-
+void expandHeatZone(float[][] terrainHeights, float[][] waterLevels) {
+    float maxRadius = 2500;  
     boolean allHeated = true;
 
     for (int i = 0; i < 40; i++) {
+      
         for (int j = 0; j < 40; j++) {
-            float x = map(i, 0, 39, -800, 800);
-            float z = map(j, 0, 39, -800, 800);
+          
+          
+            float x = map(i, 0, 40, -800, 800);
+            float z = map(j, 0, 40, -800, 800);
             float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
             if (distance < heatRadius) {
                 heatMap[i][j] = true;
 
-                // Reducir el nivel del agua en la celda correspondiente
-                if (waterLevels[i][j] > 280) { // No debe bajar del nivel mínimo del agua
-                    waterLevels[i][j] -= 0.5;  // Reducir gradualmente el nivel del agua
+                if (waterLevels[i][j]  < terrainHeights[i][j]) {
+                  
+                    waterLevels[i][j] += 5;  
                 }
             }
 
@@ -104,11 +106,14 @@ void expandHeatZone() {
     }
 
     if (heatRadius < maxRadius && !allHeated) {
-        heatRadius += 2;
+        heatRadius += 2;  
     } else {
-        heatRadius = maxRadius;
+        heatRadius = maxRadius;  
     }
 }
+
+
+
 
 
 
@@ -125,9 +130,7 @@ float calculateHeatPercentage() {
     }
     float percentage = (float) heatedCells / totalCells * 100;
 
-    return percentage;  // Retorna el porcentaje de terreno calentado
+    return percentage; 
 }
-
-
 
 }

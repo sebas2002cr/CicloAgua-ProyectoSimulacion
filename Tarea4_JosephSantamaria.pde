@@ -1,4 +1,3 @@
-//Simluacion del proceso de radiacion termica
 Sol sol;
 Nube nube;
 
@@ -16,20 +15,19 @@ int lastChangeTime = 0;
 int zoneSize = 5; 
 ArrayList<AgentSystem3D> systems;
 ArrayList<Attractor> attractors;
-ArrayList<PVector> cloudCenters;  // Centros de nubes invisibles
+ArrayList<PVector> cloudCenters; 
 ArrayList<PVector> cloudVelocities; 
 int numCloudCenters = 3; 
 
 boolean showStatistics = false;
 
-// Parámetros del terreno
-int cols = 40; // Número de columnas
-int rows = 40; // Número de filas
-float noiseScale = 0.1; // Escala del ruido
-float heightScale = 300; // Escala de altura del terreno
+int cols = 40; 
+int rows = 40; 
+float noiseScale = 0.1; 
+float heightScale = 300; 
 
-float waterLevel = 280; // Altura del agua
-float[][] waterLevels; // Almacena el nivel de agua para cada celda.
+float waterLevel = 280; 
+float[][] waterLevels; 
 
 
 
@@ -38,15 +36,17 @@ void setup() {
     cam = new PeasyCam(this, 0, 0, 0, 2000);
   
     attractors = new ArrayList();
-    sol = new Sol(0, -600, 1000, 300, 1950, 7);
+    sol = new Sol(800, -600, 1000, 400, 2500, 15);
     heatMap = new boolean[40][40];
+    float[][] waterTransparency = new float[rows][cols];
+
     
-    waterLevels = new float[rows][cols]; // Inicializar los niveles de agua para cada celda
+    waterLevels = new float[rows][cols]; 
 
     
     systems = new ArrayList<AgentSystem3D>();
     
-    //systems.add(new AgentSystem3D(0, 300, 0));  // Añadir al menos un sistema de agentes
+    //systems.add(new AgentSystem3D(0, 300, 0)); 
    
     // Inicializar velocidades de los centros de nube
     cloudVelocities = new ArrayList<>();
@@ -57,21 +57,23 @@ void setup() {
         cloudVelocities.add(new PVector(vx, vy, vz));
     }
     
-     for (int r = 0; r < rows; r++) {
-        for (int c = 0; c < cols; c++) {
-            waterLevels[r][c] = waterLevel; // Nivel inicial del agua
-        }
+    for (int r = 0; r < rows; r++) {
+    for (int c = 0; c < cols; c++) {
+        waterLevels[r][c] = waterLevel;  
+        waterTransparency[r][c] = 255;   
     }
+}
+
 }
 
 
 void draw() {
-    background(135, 206, 235); // color del cielo
+    background(135, 206, 235); 
     lights();
     translate(0, 0, 0); 
     noStroke();
     
-    float[][] terrainHeights = new float[rows][cols];  // Guardar las alturas del terreno para comparar con el agua
+    float[][] terrainHeights = new float[rows][cols];  
 
 
     for (int r = 0; r < rows - 1; r++) {
@@ -139,13 +141,13 @@ void draw() {
             float terrainHeight = terrainHeights[r][c]; // Obtener la altura del terreno
             float currentWaterLevel = waterLevels[r][c]; // Obtener el nivel actual del agua
 
-            if (currentWaterLevel  <= terrainHeight) {
+            if (currentWaterLevel  < terrainHeight) {
                 // Dibujar agua solo si el nivel del agua está por encima del terreno en esa celda
                 beginShape(QUADS);
-                vertex(x - cellOffsetX, waterLevel, z - cellOffsetZ);
-            vertex(x + cellOffsetX, waterLevel, z - cellOffsetZ);
-            vertex(x + cellOffsetX, waterLevel, z + cellOffsetZ);
-            vertex(x - cellOffsetX, waterLevel, z + cellOffsetZ);
+                vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
+            vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
+            vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
+            vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
                 endShape();
             }
         }
@@ -166,7 +168,8 @@ void draw() {
     if (solActive) {
         sol.display();
         sol.affectAgents(systems);
-        sol.expandHeatZone();
+        sol.expandHeatZone(terrainHeights, waterLevels); // Pasar terrainHeights y waterLevels
+        
     } else if (isPrecipitating) {
         moveCloudCenters();  // Mueve las nubes lentamente
         precipitateParticles();  // Activa la precipitación de partículas
@@ -324,5 +327,3 @@ void keyPressed() {
     
   
 } 
-
-//arreglar flocking
