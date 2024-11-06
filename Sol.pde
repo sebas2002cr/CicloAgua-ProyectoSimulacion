@@ -78,20 +78,23 @@ Nube findClosestNube(PVector particlePos, ArrayList<Nube> nubes) {
   }
 
 void expandHeatZone() {
-    float maxRadius = 1950;  
+    float maxRadius = 1950;
 
     boolean allHeated = true;
 
     for (int i = 0; i < 40; i++) {
-      
         for (int j = 0; j < 40; j++) {
-          
             float x = map(i, 0, 39, -800, 800);
             float z = map(j, 0, 39, -800, 800);
             float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
             if (distance < heatRadius) {
                 heatMap[i][j] = true;
+
+                // Reducir el nivel del agua en la celda correspondiente
+                if (waterLevels[i][j] > 280) { // No debe bajar del nivel mínimo del agua
+                    waterLevels[i][j] -= 0.5;  // Reducir gradualmente el nivel del agua
+                }
             }
 
             if (!heatMap[i][j]) {
@@ -99,17 +102,14 @@ void expandHeatZone() {
             }
         }
     }
-    
-    //Por si falla , aqui hay una ayuda
-    
 
     if (heatRadius < maxRadius && !allHeated) {
-      
-        heatRadius += 2;  
+        heatRadius += 2;
     } else {
-        heatRadius = maxRadius;  
+        heatRadius = maxRadius;
     }
 }
+
 
 
 float calculateHeatPercentage() {

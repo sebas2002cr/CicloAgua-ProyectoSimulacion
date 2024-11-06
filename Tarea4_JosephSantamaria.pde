@@ -28,7 +28,10 @@ int rows = 40; // Número de filas
 float noiseScale = 0.1; // Escala del ruido
 float heightScale = 300; // Escala de altura del terreno
 
-float waterLevel = 300; // Altura del agua
+float waterLevel = 280; // Altura del agua
+float[][] waterLevels; // Almacena el nivel de agua para cada celda.
+
+
 
 void setup() {
     size(800, 600, P3D);
@@ -37,6 +40,9 @@ void setup() {
     attractors = new ArrayList();
     sol = new Sol(0, -600, 1000, 300, 1950, 7);
     heatMap = new boolean[40][40];
+    
+    waterLevels = new float[rows][cols]; // Inicializar los niveles de agua para cada celda
+
     
     systems = new ArrayList<AgentSystem3D>();
     
@@ -50,6 +56,12 @@ void setup() {
         float vz = random(-1, 1);
         cloudVelocities.add(new PVector(vx, vy, vz));
     }
+    
+     for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            waterLevels[r][c] = waterLevel; // Nivel inicial del agua
+        }
+    }
 }
 
 
@@ -58,6 +70,9 @@ void draw() {
     lights();
     translate(0, 0, 0); 
     noStroke();
+    
+    float[][] terrainHeights = new float[rows][cols];  // Guardar las alturas del terreno para comparar con el agua
+
 
     for (int r = 0; r < rows - 1; r++) {
         beginShape(TRIANGLE_STRIP);
@@ -101,22 +116,45 @@ void draw() {
             float z = map(r, 0, rows - 1, -800, 800);
             vertex(x, 350 - y1, z); // Elevar el terreno debajo del nivel del agua
             vertex(x, 350 - y2, z + (1600 / (rows - 1))); // 1600 porque el área es de -800 a 800
-        }
+            terrainHeights[r][c] = 350 - y1;  // Guardar la altura del terreno
+
+      
+    
+  }
         endShape();
     }
+    
+    float cellOffsetX = (1600 / (cols - 1)) / 2 * 1.05;  // Multiplicar por 1.05 para que se solapen
+    float cellOffsetZ = (1600 / (rows - 1)) / 2 * 1.05;
 
-    // Dibujar el agua
+    // Dibujar el agua como un plano continuo celda por celda, asegurando que no esté bajo el terreno
     fill(0, 0, 255, 150); // Color del agua
     noStroke();
-    beginShape(QUADS);
-    vertex(-800, waterLevel, -800);
-    vertex(800, waterLevel, -800);
-    vertex(800, waterLevel, 800);
-    vertex(-800, waterLevel, 800);
-    endShape();
-    
+
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            float x = map(c, 0, cols - 1, -800, 800);
+            float z = map(r, 0, rows - 1, -800, 800);
+            
+            float terrainHeight = terrainHeights[r][c]; // Obtener la altura del terreno
+            float currentWaterLevel = waterLevels[r][c]; // Obtener el nivel actual del agua
+
+            if (currentWaterLevel  <= terrainHeight) {
+                // Dibujar agua solo si el nivel del agua está por encima del terreno en esa celda
+                beginShape(QUADS);
+                vertex(x - cellOffsetX, waterLevel, z - cellOffsetZ);
+            vertex(x + cellOffsetX, waterLevel, z - cellOffsetZ);
+            vertex(x + cellOffsetX, waterLevel, z + cellOffsetZ);
+            vertex(x - cellOffsetX, waterLevel, z + cellOffsetZ);
+                endShape();
+            }
+        }
+    }
+
     fill(100, 100, 100, 150);
     drawWalls();
+
+    
     
    
   
