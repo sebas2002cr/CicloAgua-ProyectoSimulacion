@@ -5,7 +5,8 @@ class Sol {
   float radiationForce;
   float heatRadius = 50; 
   boolean isActive = true;
-
+  
+  
   Sol(float x, float y, float z, float radius, float influenceRange, float radiationForce) {
     pos = new PVector(x, y, z);
     this.radius = radius;
@@ -23,7 +24,7 @@ void affectAgents(ArrayList<AgentSystem3D> systems) {
         for (Agent3D a : s.agents) {
             if (a.onFloor && !a.isActive) {
                 if (isInHeatedZone(a.pos.x, a.pos.z)) {
-                    if (random(1) < 0.003) {  // Activa solo el 5% 
+                    if (random(1) < 0.005) {  // Activa solo el 5% 
                         float randomFactor = random(0.8, 1.2);
                         PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);
                         a.applyForce(radiationEffect);

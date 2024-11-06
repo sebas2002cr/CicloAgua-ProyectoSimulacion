@@ -5,7 +5,11 @@ enum BorderBehaviour {
 class Agent3D {
   boolean isAffectedBySun = false;
   boolean isActive = false;
+   boolean isFalling = false;
   PVector targetNube = null;
+  boolean isReadyToFall = false;  
+  float fallDelay;  
+  float timeSinceActivated = 0; 
   PVector pos;
   PVector vel;
   PVector acc;
@@ -23,16 +27,16 @@ class Agent3D {
   boolean isDead;  
   float maxHeight = -300;
   float minHeight = -250;   
-  
+  boolean isRaining = false;
   float topHeight = -200; 
 
 
 
   float damp;
-  float maxSpeed = 0.1;
+  float maxSpeed = 0.005;
 
   //FLOCKING VARIABLES ----------
-  float maxSteeringForce = 0.01;
+  float maxSteeringForce = 0.005;
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
   float wanderLookAhead = 50;
@@ -44,10 +48,10 @@ class Agent3D {
   float pathAhead = 50;
 
   float alignmentRadio = 80;
-  float alignmentRatio = 0.5;
+  float alignmentRatio = 0.2;
 
   float separationRadio = 40; 
-  float separationRatio = 2;
+  float separationRatio = 1.0;
 
   float cohesionRadio = 120;
   float cohesionRatio = 2;
@@ -77,7 +81,7 @@ class Agent3D {
     onFloor = false; 
     attracted = false;  
     isDead = false;  
-
+    fallDelay = random(3000, 8000);
 
   }
   
@@ -100,27 +104,46 @@ class Agent3D {
     }
   }
   
-  
+
+
 void update() {
     if (isActive) {
         if (pos.y > maxHeight) {
-            PVector upwardForce = new PVector(0, -0.000001, 0); 
+            PVector upwardForce = new PVector(0, -0.0000001, 0); 
             applyForce(upwardForce);
         } else {
             vel.y = 0;  
             acc.y = 0;
             isActive = false;  
+            isFalling = false;
+            timeSinceActivated = millis(); 
         }
     }
+    
+    // Verifica si el tiempo de caída ha pasado
+        if (isFalling && !isReadyToFall) {
+            if (millis() - timeSinceActivated >= fallDelay) {
+                isReadyToFall = true;  // Marca la partícula lista para caer
+            }
+        }
+        
+       // Aplica gravedad solo si está lista para caer
+        if (isReadyToFall) {
+            applyGravity();
+        }
+        
+        
+         if (pos.y >= 300) {
+            pos.y = 300;
+            isFalling = false; 
+            isReadyToFall = false;  // Reinicia para la siguiente caída
+        }
 
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
 
-    if (pos.y >= 300) {
-        onFloor = true;
-        pos.y = 300;
-    }
+   
 
     // Amortiguación 
     float damp = 0.5;
@@ -198,6 +221,8 @@ boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
         float distanceToNube = PVector.dist(pos, targetNube);
         if (distanceToNube < 10) {
+          isActive = false;  // Desactiva flocking cuando llega a la nube
+                isFalling = true;
             return true;   
         }
     }
@@ -217,6 +242,11 @@ boolean checkCollisionWithNube() {
         }
 
         return closest;
+    }
+
+void applyGravity() {
+        PVector gravity = new PVector(0, 0.05, 0); // Vector de gravedad
+        applyForce(gravity);
     }
 
 void applyForce(PVector f) { 
