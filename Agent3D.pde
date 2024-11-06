@@ -120,14 +120,12 @@ void update() {
         }
     }
     
-    // Verifica si el tiempo de caída ha pasado
         if (isFalling && !isReadyToFall) {
             if (millis() - timeSinceActivated >= fallDelay) {
                 isReadyToFall = true;  // Marca la partícula lista para caer
             }
         }
         
-       // Aplica gravedad solo si está lista para caer
         if (isReadyToFall) {
             applyGravity();
         }
@@ -137,6 +135,13 @@ void update() {
             pos.y = 300;
             isFalling = false; 
             isReadyToFall = false;  // Reinicia para la siguiente caída
+            
+        int col = int(map(pos.x, -800, 800, 0, cols - 1));
+        int row = int(map(pos.z, -800, 800, 0, rows - 1));
+        
+        // Generar cuerpo de agua
+        generarCuerpoDeAgua(row, col);
+            
         }
 
     vel.add(acc);
@@ -145,7 +150,6 @@ void update() {
 
    
 
-    // Amortiguación 
     float damp = 0.5;
 
     if (!onFloor && !attracted) {
@@ -179,7 +183,6 @@ void update() {
         onFloor = true;
         pos.y = 300; 
 
-        // Viento natural
         PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6)); 
         vel.add(viento); 
     }
@@ -204,7 +207,6 @@ void setAffectedBySun(boolean affected) {
 
 
     void attract() {
-        // Obtener el attractor más cercano (si existe)
         Attractor closestAttractor = getClosestAttractor();
         if (closestAttractor != null) {
             PVector r = PVector.sub(closestAttractor.pos, pos);
@@ -275,6 +277,14 @@ void align(ArrayList<Agent3D> agents) {
         applyForce(result);
     }
 }
+
+void generarCuerpoDeAgua(int row, int col) {
+    // Asegúrate de que la posición esté dentro de los límites
+    if (row >= 0 && row < rows && col >= 0 && col < cols) {
+        waterLevels[row][col] = waterLevel;  // Genera un cuerpo de agua en la celda donde cayó el agente
+    }
+}
+
 
 void separate(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);

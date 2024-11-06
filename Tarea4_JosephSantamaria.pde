@@ -171,11 +171,9 @@ void draw() {
         sol.affectAgents(systems);
         sol.expandHeatZone(terrainHeights, waterLevels); // Pasar terrainHeights y waterLevels
         
-    } else if (isPrecipitating) {
-        moveCloudCenters();  // Mueve las nubes lentamente
-        sol.expandHeatZone();
-    } else if (isRaining) {
-        precipitateParticles();  // Activa la precipitación de partículas
+    }
+    else if (isRaining) {
+        precipitateParticles();  
     }
 
     // Actualizar y detener partículas en la nube sin eliminarlas
@@ -264,6 +262,14 @@ void displayStatistics() {
 }
 
 
+void colocarAgua() {
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            waterLevels[r][c] = waterLevel;
+        }
+    }
+}
+
 //MUROS DE LA CAJA --------------
 void drawWalls() {
   beginShape(QUADS);
@@ -304,6 +310,10 @@ void keyPressed() {
     systems.add(s);
   }
   
+  if (key == 'w' || key == 'W') {
+        colocarAgua();
+    }
+  
   if (key == 't') {  // 't' para encender o apagar el sol
     sol.toggleSun();
   }
@@ -330,4 +340,4 @@ void keyPressed() {
     }
     
   
-} 
+}  

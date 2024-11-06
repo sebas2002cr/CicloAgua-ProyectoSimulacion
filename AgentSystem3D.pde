@@ -48,14 +48,13 @@ void update() {
 
 void run() {
   if (!flockingStarted) {
-            flockingStartTime = millis();  // Marca el tiempo de inicio de flocking
+            flockingStartTime = millis(); 
             flockingStarted = true;
         }
         
-        // Verifica si ya han pasado 10 segundos desde el inicio del flocking
-        if (millis() - flockingStartTime > 30000) {  // 10000 ms = 10 segundos
+        if (millis() - flockingStartTime > 30000) {  
             releaseSomeParticles();
-            flockingStarted = false;  // Reinicia el estado de flocking
+            flockingStarted = false;  
         }
     for (Agent3D a : agents) {
       if (a.isActive && a.pos.y < flockingHeight) { 
