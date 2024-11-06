@@ -24,6 +24,9 @@ class Agent3D {
   boolean isDead;  
   float maxHeight = -300;
   float minHeight = -250;   
+  
+  float topHeight = -200; 
+
 
 
   float damp;

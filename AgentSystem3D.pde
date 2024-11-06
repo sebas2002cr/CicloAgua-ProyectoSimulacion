@@ -6,6 +6,9 @@ class AgentSystem3D {
   ArrayList<Agent3D> agents;
   ArrayList<Attractor> attractors;
     float flockingHeight = -180; // Altura donde se activa el flocking
+    
+  float topHeight = -200; 
+
   
   AgentSystem3D(float x, float y, float z) {
     pos = new PVector(x, y, z);
@@ -43,10 +46,12 @@ void update() {
 
 
 void run() {
-  flocking();
     for (Agent3D a : agents) {
-      if (a.isActive && a.pos.y <= flockingHeight) { 
-        // Aplica flocking solo si la partícula está en la zona de flocking
+      if (a.isAffectedBySun && a.pos.y < flockingHeight) { 
+        
+        flocking();
+
+
         a.align(agents);
         a.separate(agents);
         a.cohere(agents);
