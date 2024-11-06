@@ -3,8 +3,7 @@ Nube nube;
 
 ArrayList<Nube> nubes;
 boolean generatingAgents = true;
-boolean isPrecipitating = false;
-
+boolean isRaining = false;
 import peasy.*;
 
 PeasyCam cam;
@@ -28,6 +27,8 @@ float heightScale = 300;
 
 float waterLevel = 280; 
 float[][] waterLevels; 
+
+
 
 
 
@@ -172,6 +173,8 @@ void draw() {
         
     } else if (isPrecipitating) {
         moveCloudCenters();  // Mueve las nubes lentamente
+        sol.expandHeatZone();
+    } else if (isRaining) {
         precipitateParticles();  // Activa la precipitación de partículas
     }
 
@@ -230,6 +233,7 @@ void precipitateParticles() {
         }
     }
 }
+
 
 void displayStatistics() {
   
@@ -308,8 +312,8 @@ void keyPressed() {
     solActive = !solActive;  
   }
   
-  if (key == 'p' && !sol.isActive) {  
-    isPrecipitating = !isPrecipitating;
+  if (key == 'p' || key == 'P') {
+    isRaining = !isRaining; // Activa o desactiva la lluvia
   }
     
   if (key == 'g') {
