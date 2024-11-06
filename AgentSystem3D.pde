@@ -5,15 +5,17 @@ class AgentSystem3D {
   PVector pos;
   ArrayList<Agent3D> agents;
   ArrayList<Attractor> attractors;
-    float flockingHeight = -100; 
-    
-  float topHeight = -200; 
+  float flockingHeight = -100; 
+  int flockingStartTime; 
+  float topHeight = -200;
+  boolean flockingStarted = false;
 
   
   AgentSystem3D(float x, float y, float z) {
     pos = new PVector(x, y, z);
     agents = new ArrayList();
     attractors = new ArrayList<Attractor>();
+    flockingStartTime = millis();
   }
   
    void addAttractor(Attractor attractor) {
@@ -45,6 +47,16 @@ void update() {
 
 
 void run() {
+  if (!flockingStarted) {
+            flockingStartTime = millis();  // Marca el tiempo de inicio de flocking
+            flockingStarted = true;
+        }
+        
+        // Verifica si ya han pasado 10 segundos desde el inicio del flocking
+        if (millis() - flockingStartTime > 30000) {  // 10000 ms = 10 segundos
+            releaseSomeParticles();
+            flockingStarted = false;  // Reinicia el estado de flocking
+        }
     for (Agent3D a : agents) {
       if (a.isActive && a.pos.y < flockingHeight) { 
         
@@ -61,6 +73,15 @@ void run() {
     addAgent();
   }
 
+
+void releaseSomeParticles() {
+        for (int i = 0; i < agents.size(); i++) {
+            if (random(1) < 0.8) {  // 30% de probabilidad de dejar caer cada partícula
+                agents.get(i).isFalling = true;
+                agents.get(i).isActive = false;
+            }
+        }
+    }
 
 void addAgent() {
   if (!generatingAgents) return;  
