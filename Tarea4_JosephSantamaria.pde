@@ -267,7 +267,7 @@ void keyPressed() {
     solActive = !solActive;  
   }
   
-  if (key == 'p' && !sol.isActive) {  //activar precipitación solo cuando el sol esté apagado
+  if (key == 'p' && !sol.isActive) {  
     isPrecipitating = !isPrecipitating;
   }
     

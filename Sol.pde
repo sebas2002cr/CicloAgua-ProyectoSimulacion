@@ -13,7 +13,7 @@ class Sol {
     this.radiationForce = radiationForce;
   }
   void toggleSun() {
-        isActive = !isActive;  // Cambia el estado del sol
+        isActive = !isActive;  
     }
   
 
@@ -22,9 +22,8 @@ void affectAgents(ArrayList<AgentSystem3D> systems) {
     for (AgentSystem3D s : systems) {
         for (Agent3D a : s.agents) {
             if (a.onFloor && !a.isActive) {
-                // Verifica si el agente está dentro de la zona caliente
                 if (isInHeatedZone(a.pos.x, a.pos.z)) {
-                    if (random(1) < 0.003) {  // Activa solo el 5% en la zona de radiación
+                    if (random(1) < 0.003) {  // Activa solo el 5% 
                         float randomFactor = random(0.8, 1.2);
                         PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);
                         a.applyForce(radiationEffect);

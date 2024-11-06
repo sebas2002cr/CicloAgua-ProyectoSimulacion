@@ -5,7 +5,7 @@ class AgentSystem3D {
   PVector pos;
   ArrayList<Agent3D> agents;
   ArrayList<Attractor> attractors;
-    float flockingHeight = -180; // Altura donde se activa el flocking
+    float flockingHeight = -100; 
     
   float topHeight = -200; 
 
@@ -16,7 +16,6 @@ class AgentSystem3D {
     attractors = new ArrayList<Attractor>();
   }
   
-  // Método para agregar un attractor a este sistema
    void addAttractor(Attractor attractor) {
      attractors.add(attractor);
    }
@@ -38,7 +37,7 @@ void update() {
         a.cohere(agents);     
         a.update();
       }else {
-        a.update(); // Actualiza la posición de cada agente
+        a.update(); 
       }      
     }
     addAgent();
@@ -47,7 +46,7 @@ void update() {
 
 void run() {
     for (Agent3D a : agents) {
-      if (a.isAffectedBySun && a.pos.y < flockingHeight) { 
+      if (a.isActive && a.pos.y < flockingHeight) { 
         
         flocking();
 
@@ -66,7 +65,7 @@ void run() {
 void addAgent() {
   if (!generatingAgents) return;  
   
-  int numNewAgents = (int) random(0, 9);
+  int numNewAgents = (int) random(0, 3);
   for (int i = 0; i < numNewAgents; i++) {
     Agent3D agent1 = new Agent3D(pos.x, pos.y, pos.z);
     Agent3D agent2 = new Agent3D(pos.x + 20, pos.y, pos.z);

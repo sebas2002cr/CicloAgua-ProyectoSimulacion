@@ -10,7 +10,6 @@ class Agent3D {
   PVector vel;
   PVector acc;
   color c;
-  float maxSpeed;
   float mass;
   float massLoss;
   float angX;
@@ -30,9 +29,10 @@ class Agent3D {
 
 
   float damp;
-  
+  float maxSpeed = 0.1;
+
   //FLOCKING VARIABLES ----------
-  float maxSteeringForce = 0.1;
+  float maxSteeringForce = 0.01;
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
   float wanderLookAhead = 50;
@@ -44,41 +44,27 @@ class Agent3D {
   float pathAhead = 50;
 
   float alignmentRadio = 80;
-  float alignmentRatio = 1;
+  float alignmentRatio = 0.5;
 
-  float separationRadio = 30; 
-  float separationRatio = 5;
+  float separationRadio = 40; 
+  float separationRatio = 2;
 
-  float cohesionRadio = 150;
-  float cohesionRatio = 1;
+  float cohesionRadio = 120;
+  float cohesionRatio = 2;
   
   
   Agent3D(float x, float y, float z) {
+    
+    //Pase las variables , ya que me daba error
     pos = new PVector(x, y, z);
     vel = new PVector(0, 0, 0);
     acc = new PVector(0, 0, 0);
-    
-    //COMPORTAMIENTOS PARA EL FLOCKING -------
-    maxSteeringForce = 0.1;
-    arrivalRadius = 100;
-    wanderLookAhead = 50;
-    wanderRadius = 40;
-    wanderNoiseTInc = 0.001;
-    pathLookAhead = 50;
-    pathAhead = 50;
-    alignmentRadio = 80;
-    alignmentRatio = 1;
-    separationRadio = 30; 
-    separationRatio = 5;
-    cohesionRadio = 150;
-    cohesionRatio = 1;
-    
+   
     //COLOR BLANCO
     colorMode(RGB);
     c = color(255, 255, 255, 255); 
 
     
-    maxSpeed = 5;
     mass = random(500, 800);
     massLoss = 0.8;
     angX = random(0, PI);
@@ -131,7 +117,6 @@ void update() {
     pos.add(vel);
     acc.mult(0);
 
-    // Lógica adicional para las paredes y el comportamiento en el suelo
     if (pos.y >= 300) {
         onFloor = true;
         pos.y = 300;
@@ -209,7 +194,6 @@ void setAffectedBySun(boolean affected) {
     }
 
 
-// Verificar colisión con la nube y eliminar partícula
 boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
         float distanceToNube = PVector.dist(pos, targetNube);
@@ -220,7 +204,6 @@ boolean checkCollisionWithNube() {
     return false;
 }
 
-// Obtener el attractor más cercano
     Attractor getClosestAttractor() {
         float minDist = Float.MAX_VALUE;
         Attractor closest = null;
