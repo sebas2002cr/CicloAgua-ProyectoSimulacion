@@ -5,6 +5,7 @@ class Sol {
   float radiationForce;
   float heatRadius = 100; 
   boolean isActive = true;
+  boolean isCooling = false;
   
   
   Sol(float x, float y, float z, float radius, float influenceRange, float radiationForce) {
@@ -15,6 +16,7 @@ class Sol {
   }
   void toggleSun() {
         isActive = !isActive;  
+        isCooling = !isActive;
     }
   
 
@@ -24,7 +26,7 @@ void affectAgents(ArrayList<AgentSystem3D> systems) {
         for (Agent3D a : s.agents) {
             if (a.onFloor && !a.isActive) {
                 if (isInHeatedZone(a.pos.x, a.pos.z)) {
-                    if (random(1) < 0.005) {  // Activa solo el 5% 
+                    if (random(1) < 0.0005) {  // Activa solo el 5% 
                         float randomFactor = random(0.8, 1.2);
                         PVector radiationEffect = new PVector(0, -radiationForce * randomFactor, 0);
                         a.applyForce(radiationEffect);
@@ -114,8 +116,28 @@ void expandHeatZone(float[][] terrainHeights, float[][] waterLevels) {
 }
 
 
+  void reduceHeatZone() {
+    if (!isCooling) return;
 
+    for (int i = 0; i < 40; i++) {
+      for (int j = 0; j < 40; j++) {
+        float x = map(i, 0, 40, -800, 800);
+        float z = map(j, 0, 40, -800, 800);
+        float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
+        if (distance >= heatRadius) {
+          heatMap[i][j] = false;  // Marca como no caliente para detener la evaporación
+        }
+      }
+    }
+
+    // Reduce el radio de calor para que el enfriamiento sea gradual
+    if (heatRadius > 100) {
+      heatRadius -= 2;
+    } else {
+      isCooling = false;  // Detiene el enfriamiento cuando el radio de calor llega a su valor mínimo
+    }
+  }
 
 
 float calculateHeatPercentage() {

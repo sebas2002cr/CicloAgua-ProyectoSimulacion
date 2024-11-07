@@ -162,15 +162,18 @@ void draw() {
       //precipitateParticles();
     //}
 
-    if (solActive) {
-        sol.display();
-        sol.affectAgents(systems);
-        sol.expandHeatZone(terrainHeights, waterLevels); // Pasar terrainHeights y waterLevels
-        
-    }
-    else if (isRaining) {
-        precipitateParticles();  
-    }
+if (solActive) {
+    sol.display();
+    sol.affectAgents(systems);
+    sol.expandHeatZone(terrainHeights, waterLevels);
+  } else if (isRaining) {
+    precipitateParticles();  
+  } else if (!solActive) {
+    sol.reduceHeatZone(); // Enfriamiento cuando el sol está apagado
+  }
+
+
+
 
     // Actualizar y detener partículas en la nube sin eliminarlas
     for (int i = systems.size() - 1; i >= 0; i--) {

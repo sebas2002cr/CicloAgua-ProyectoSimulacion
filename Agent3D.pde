@@ -109,7 +109,7 @@ class Agent3D {
 void update() {
     if (isActive) {
         if (pos.y > maxHeight) {
-            PVector upwardForce = new PVector(0, -0.0000001, 0); 
+            PVector upwardForce = new PVector(0, 0.00001, 0); 
             applyForce(upwardForce);
         } else {
             vel.y = 0;  
