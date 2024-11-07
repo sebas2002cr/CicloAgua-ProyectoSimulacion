@@ -5,10 +5,9 @@ enum BorderBehaviour {
 class Agent3D {
   boolean isAffectedBySun = false;
   boolean isActive = false;
-   boolean isFalling = false;
+  boolean isFalling = false;
   PVector targetNube = null;
   boolean isReadyToFall = false;  
-  float fallDelay;  
   float timeSinceActivated = 0; 
   PVector pos;
   PVector vel;
@@ -30,21 +29,13 @@ class Agent3D {
   boolean isRaining = false;
   float topHeight = -200; 
 
-
-
   float damp;
   float maxSpeed = 0.005;
 
   float maxSteeringForce = 0.005;
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
-  float wanderLookAhead = 50;
-  float wanderRadius = 40;
-  float wanderNoiseT;
-  float wanderNoiseTInc = 0.001;
 
-  float pathLookAhead = 50;
-  float pathAhead = 50;
 
   float alignmentRadio = 80;
   float alignmentRatio = 0.2;
@@ -55,17 +46,24 @@ class Agent3D {
   float cohesionRadio = 120;
   float cohesionRatio = 2;
   
-  
+  float fallDelay;
+    int lastFallAttempt;
+    
   Agent3D(float x, float y, float z) {
+    
+    
     
     pos = new PVector(x, y, z);
     vel = new PVector(0, 0, 0);
     acc = new PVector(0, 0, 0);
-   
+    
     colorMode(RGB);
     c = color(255, 255, 255, 255); 
-
     
+    
+    fallDelay = random(2000, 8000) + random(-1000, 1000); 
+    lastFallAttempt = millis() + int(random(-1000, 1000));
+
     mass = random(500, 800);
     massLoss = 0.8;
     angX = random(0, PI);
@@ -73,24 +71,22 @@ class Agent3D {
     angY = random(0, PI);
     angYVel = random(-0.01, 0.01);
     angZ = random(0, PI);
-    //angZVel = random(-0.1, 0.1);
     
     onFloor = false; 
     attracted = false;  
     isDead = false;  
     fallDelay = random(3000, 8000);
-
   }
   
   private float r() {
     return pow(3 * mass / 4 / PI, 1.0/3.0);
   }
+
   boolean isDead() {
     return mass < 0.1;
   }
   
-  
- void display() {
+  void display() {
     if (!isDead) {  
       fill(c);
       noStroke();
@@ -101,77 +97,79 @@ class Agent3D {
     }
   }
   
-
-
-void update() {
+  void update() {
     if (isActive) {
         if (pos.y > maxHeight) {
-            PVector upwardForce = new PVector(0, 0.00001, 0); 
+            PVector upwardForce = new PVector(0, 0.00001, 0);
             applyForce(upwardForce);
         } else {
-            vel.y = 0;  
+            vel.y = 0;
             acc.y = 0;
-            isActive = false;  
+            isActive = false;
             isFalling = false;
-            timeSinceActivated = millis(); 
+            timeSinceActivated = millis();
         }
     }
+
+    if (isFalling && !isReadyToFall && isRaining) {
+        if (millis() - timeSinceActivated >= fallDelay) {
+            isReadyToFall = true;
+        }
+    }
+
+    if (isReadyToFall && isRaining) {
+        applyGravity();
+    }
     
-        if (isFalling && !isReadyToFall) {
-            if (millis() - timeSinceActivated >= fallDelay) {
-                isReadyToFall = true;  
-            }
-        }
-        
-        if (isReadyToFall) {
-            applyGravity();
-        }
-        
-        
-         if (pos.y >= 300) {
-            pos.y = 320;
-            isFalling = false; 
-            isReadyToFall = false;  
-            
+    if (isFalling) {
+    applyGravity();
+    if (vel.mag() < 0.1) {
+        vel.y = 0.05; 
+    }
+}
+
+
+    if (pos.y >= 300) {
+        pos.y = 300;
+        isFalling = false;
+        isReadyToFall = false;
+
         int col = int(map(pos.x, -800, 800, 0, cols - 1));
         int row = int(map(pos.z, -800, 800, 0, rows - 1));
-        
-        // Generar cuerpo de agua
+
         generarCuerpoDeAgua(row, col);
-        
-        if (pos.y == 320) {vel = new PVector(0, 0, 0);}
-        }
+
+        vel = new PVector(0, 0, 0);
+    }
 
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
 
-   
-
     float damp = 0.5;
 
     if (!onFloor && !attracted) {
-        acc.add(new PVector(0, 0.001, 0)); 
+        acc.add(new PVector(0, 0.001, 0));
     }
 
     if (onFloor && attracted) {
-        PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); // Cambiar dirección del viento hacia arriba
+        PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); 
         vel.add(viento);
     }
 
     if (pos.x <= -800 || pos.x >= 800) {
-        vel.x *= -1;  
-        pos.x = constrain(pos.x, -800, 800);  
+        vel.x *= -1;
+        pos.x = constrain(pos.x, -800, 800);
     }
 
     if (pos.z <= -800 || pos.z >= 800) {
-        vel.z *= -1;  
-        pos.z = constrain(pos.z, -800, 800); 
+        vel.z *= -1;
+        pos.z = constrain(pos.z, -800, 800);
     }
 
     float dragCoefficient = 0.01;
     PVector drag = vel.copy();
-    drag.mult(-dragCoefficient); 
+    drag.mult(-dragCoefficient);
     acc.add(drag);
 
     vel.add(acc);
@@ -179,145 +177,148 @@ void update() {
 
     if (pos.y >= 300) {
         onFloor = true;
-        pos.y = 300; 
+        pos.y = 300;
+        isFalling = false; 
+        isReadyToFall = false;
 
-        PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6)); 
-        vel.add(viento); 
+        PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6));
+        vel.add(viento);
     }
 
-    acc.mult(0);    
+    acc.mult(0);
 
     if (mass < 0.1) {
-        mass = 0.1; 
+        mass = 0.1;
     }
-    
+
     if (pos.y < maxHeight) {
-    pos.y = maxHeight;
-    vel.y = 0;  
-}
+        pos.y = maxHeight;
+        vel.y = 0;
+    }
+  }
+  
+    boolean isEligibleToFall() {
+        if (millis() - lastFallAttempt >= fallDelay) {
+            lastFallAttempt = millis() + int(random(-1000, 1000)); 
+            return true;
+        }
+        return false;
+    }
 
-}
 
-void setAffectedBySun(boolean affected) {
+  void setAffectedBySun(boolean affected) {
     isAffectedBySun = affected;
     isActive = affected;
   }
 
-
-    void attract() {
-        Attractor closestAttractor = getClosestAttractor();
-        if (closestAttractor != null) {
-            PVector r = PVector.sub(closestAttractor.pos, pos);
-            float d2 = constrain(r.magSq(), 1, 2000);  
-            r.normalize();
-            r.mult(closestAttractor.g * closestAttractor.mass * mass / d2);  // Ley de gravedad simplificada
-            applyForce(r);
-            attracted = true;
-        }
+  void attract() {
+    Attractor closestAttractor = getClosestAttractor();
+    if (closestAttractor != null) {
+      PVector r = PVector.sub(closestAttractor.pos, pos);
+      float d2 = constrain(r.magSq(), 1, 2000);  
+      r.normalize();
+      r.mult(closestAttractor.g * closestAttractor.mass * mass / d2);  
+      applyForce(r);
+      attracted = true;
     }
+  }
 
-
-boolean checkCollisionWithNube() {
+  boolean checkCollisionWithNube() {
     if (isActive && targetNube != null) {
-        float distanceToNube = PVector.dist(pos, targetNube);
-        if (distanceToNube < 10) {
-          isActive = false;  // Desactiva flocking cuando llega a la nube
-                isFalling = true;
-            return true;   
-        }
+      float distanceToNube = PVector.dist(pos, targetNube);
+      if (distanceToNube < 10) {
+        isActive = false;  
+        isFalling = true;
+        return true;   
+      }
     }
     return false;
-}
+  }
 
-    Attractor getClosestAttractor() {
-        float minDist = Float.MAX_VALUE;
-        Attractor closest = null;
+  Attractor getClosestAttractor() {
+    float minDist = Float.MAX_VALUE;
+    Attractor closest = null;
 
-        for (Attractor attractor : attractors) {
-            float dist = PVector.dist(pos, attractor.pos);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = attractor;
-            }
-        }
-
-        return closest;
+    for (Attractor attractor : attractors) {
+      float dist = PVector.dist(pos, attractor.pos);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = attractor;
+      }
     }
 
-void applyGravity() {
-        PVector gravity = new PVector(0, 0.05, 0); // Vector de gravedad
-        applyForce(gravity);
-    }
+    return closest;
+  }
 
-void applyForce(PVector f) { 
+  void applyGravity() {
+    PVector gravity = new PVector(0, 0.05, 0); 
+    applyForce(gravity);
+  }
+
+  void applyForce(PVector f) { 
     acc.add(f);  
-}
+  }
 
-
-
-//FLOCKING -------------
-boolean debug = false;
-void align(ArrayList<Agent3D> agents) {
-  
-  
+  // FLOCKING -------------
+  boolean debug = false;
+  void align(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-        if (this != a && pos.dist(a.pos) < alignmentRadio) {
-            result.add(a.vel);
-            n++;
-        }
+      if (this != a && pos.dist(a.pos) < alignmentRadio) {
+        result.add(a.vel);
+        n++;
+      }
     }
     if (n > 0) {
-        result.div(n);
-        result.setMag(alignmentRatio);
-        result.limit(maxSteeringForce);
-        applyForce(result);
+      result.div(n);
+      result.setMag(alignmentRatio);
+      result.limit(maxSteeringForce);
+      applyForce(result);
     }
-}
+  }
 
-void generarCuerpoDeAgua(int row, int col) {
+  void generarCuerpoDeAgua(int row, int col) {
     if (row >= 0 && row < rows && col >= 0 && col < cols) {
-        waterLevels[row][col] = waterLevel;  
+      waterLevels[row][col] = waterLevel;  
     }
-}
+  }
 
-
-void separate(ArrayList<Agent3D> agents) {
+  void separate(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-        if (this != a && pos.dist(a.pos) < separationRadio) {
-            PVector dif = PVector.sub(pos, a.pos);
-            dif.normalize();
-            dif.div(pos.dist(a.pos));
-            result.add(dif);
-            n++;
-        }
+      if (this != a && pos.dist(a.pos) < separationRadio) {
+        PVector dif = PVector.sub(pos, a.pos);
+        dif.normalize();
+        dif.div(pos.dist(a.pos));
+        result.add(dif);
+        n++;
+      }
     }
     if (n > 0) {
-        result.div(n);
-        result.setMag(separationRatio);
-        result.limit(maxSteeringForce);
-        applyForce(result);
+      result.div(n);
+      result.setMag(separationRatio);
+      result.limit(maxSteeringForce);
+      applyForce(result);
     }
-}
+  }
 
-void cohere(ArrayList<Agent3D> agents) {
+  void cohere(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
     for (Agent3D a : agents) {
-        if (this != a && pos.dist(a.pos) < cohesionRadio) {
-            result.add(a.pos);
-            n++;
-        }
+      if (this != a && pos.dist(a.pos) < cohesionRadio) {
+        result.add(a.pos);
+        n++;
+      }
     }
     if (n > 0) {
-        result.div(n);
-        PVector dif = PVector.sub(result, pos);
-        dif.setMag(cohesionRatio);
-        dif.limit(maxSteeringForce);
-        applyForce(dif);
+      result.div(n);
+      PVector dif = PVector.sub(result, pos);
+      dif.setMag(cohesionRatio);
+      dif.limit(maxSteeringForce);
+      applyForce(dif);
     }
-}
+  }
 }
