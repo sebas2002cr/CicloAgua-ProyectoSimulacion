@@ -1,7 +1,6 @@
 Sol sol;
 Nube nube;
 
-ArrayList<Nube> nubes;
 boolean generatingAgents = true;
 boolean isRaining = false;
 import peasy.*;
@@ -39,7 +38,6 @@ void setup() {
     attractors = new ArrayList();
     sol = new Sol(800, -600, 1000, 400, 2500, 15);
     heatMap = new boolean[40][40];
-    float[][] waterTransparency = new float[rows][cols];
 
     
     waterLevels = new float[rows][cols]; 
@@ -59,7 +57,6 @@ void setup() {
     for (int r = 0; r < rows; r++) {
     for (int c = 0; c < cols; c++) {
         waterLevels[r][c] = waterLevel;  
-        waterTransparency[r][c] = 255;   
     }
 }
 
@@ -78,7 +75,6 @@ void draw() {
     for (int r = 0; r < rows - 1; r++) {
         beginShape(TRIANGLE_STRIP);
         for (int c = 0; c < cols; c++) {
-            // Determinar la zona del terreno
             float currentNoiseScale;
             float currentHeightScale;
 
@@ -150,15 +146,15 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
-if (solActive) {
-    sol.display();
-    sol.affectAgents(systems);
-    sol.expandHeatZone(terrainHeights, waterLevels);
-  } else if (isRaining) {
-    precipitateParticles();  
-  } else if (!solActive) {
-    sol.reduceHeatZone(); 
-  }
+if (isRaining) {
+            precipitateParticles();
+        } else if (solActive) {
+            sol.display();
+            sol.affectAgents(systems);
+            sol.expandHeatZone(terrainHeights, waterLevels);
+        } else {
+            sol.reduceHeatZone();
+        }
 
 
 
@@ -193,26 +189,24 @@ void moveCloudCenters() {
         if (center.z < -800 || center.z > 800) velocity.z *= -1;
     }
 }
-
-//LLUVIA---------------------------------------------------
 void precipitateParticles() {
     for (int i = systems.size() - 1; i >= 0; i--) {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0; j--) {
             Agent3D agent = s.agents.get(j);
-            
-            if (!agent.isActive && agent.pos.y > 300) {  
-                PVector gravity = new PVector(0, 0.2, 0);  
-                agent.applyForce(gravity);
 
-                if (agent.pos.y >= 300) {
-                    agent.pos.y = 300;  
-                    agent.vel.set(0, 0, 0);  
+            if (!agent.isActive && !agent.isFalling && isRaining) {
+                if (agent.isEligibleToFall()) {
+                    agent.isFalling = true; 
                 }
             }
         }
     }
 }
+
+
+
+
 
 
 void displayStatistics() {
@@ -303,8 +297,9 @@ void keyPressed() {
   }
   
   if (key == 'p' || key == 'P') {
-    isRaining = !isRaining; 
-  }
+            isRaining = !isRaining;
+            println("isRaining changed to: " + isRaining);
+        }
     
   if (key == 'g') {
     generatingAgents = !generatingAgents;  
