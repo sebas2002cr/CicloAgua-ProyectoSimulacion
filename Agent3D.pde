@@ -91,7 +91,7 @@ class Agent3D {
       fill(c);
       noStroke();
       pushMatrix();
-      translate(pos.x, pos.y, pos.z);
+      translate(pos.x, pos.y+25, pos.z);
       box(r());
       popMatrix();
     }
@@ -141,6 +141,9 @@ class Agent3D {
 
         vel = new PVector(0, 0, 0);
     }
+        
+        if (pos.y == 310) {vel = new PVector(0, 0, 0);}
+        }
 
     vel.add(acc);
     pos.add(vel);
