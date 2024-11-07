@@ -95,7 +95,7 @@ class Agent3D {
       fill(c);
       noStroke();
       pushMatrix();
-      translate(pos.x, pos.y, pos.z);
+      translate(pos.x, pos.y+25, pos.z);
       box(r());
       popMatrix();
     }
@@ -129,7 +129,7 @@ void update() {
         
         
          if (pos.y >= 300) {
-            pos.y = 320;
+            pos.y = 310;
             isFalling = false; 
             isReadyToFall = false;  
             
@@ -139,14 +139,12 @@ void update() {
         // Generar cuerpo de agua
         generarCuerpoDeAgua(row, col);
         
-        if (pos.y == 320) {vel = new PVector(0, 0, 0);}
+        if (pos.y == 310) {vel = new PVector(0, 0, 0);}
         }
 
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
-
-   
 
     float damp = 0.5;
 

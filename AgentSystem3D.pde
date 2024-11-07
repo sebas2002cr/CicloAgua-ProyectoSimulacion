@@ -130,7 +130,4 @@ void addAgent() {
             agent.cohere(agents);
         }
     }
-
-
-
 }
