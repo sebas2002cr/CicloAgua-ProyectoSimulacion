@@ -35,7 +35,6 @@ class Agent3D {
   float damp;
   float maxSpeed = 0.005;
 
-  //FLOCKING VARIABLES ----------
   float maxSteeringForce = 0.005;
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
@@ -59,12 +58,10 @@ class Agent3D {
   
   Agent3D(float x, float y, float z) {
     
-    //Pase las variables , ya que me daba error
     pos = new PVector(x, y, z);
     vel = new PVector(0, 0, 0);
     acc = new PVector(0, 0, 0);
    
-    //COLOR BLANCO
     colorMode(RGB);
     c = color(255, 255, 255, 255); 
 
@@ -122,7 +119,7 @@ void update() {
     
         if (isFalling && !isReadyToFall) {
             if (millis() - timeSinceActivated >= fallDelay) {
-                isReadyToFall = true;  // Marca la partícula lista para caer
+                isReadyToFall = true;  
             }
         }
         
@@ -134,7 +131,7 @@ void update() {
          if (pos.y >= 300) {
             pos.y = 320;
             isFalling = false; 
-            isReadyToFall = false;  // Reinicia para la siguiente caída
+            isReadyToFall = false;  
             
         int col = int(map(pos.x, -800, 800, 0, cols - 1));
         int row = int(map(pos.z, -800, 800, 0, rows - 1));
@@ -280,9 +277,8 @@ void align(ArrayList<Agent3D> agents) {
 }
 
 void generarCuerpoDeAgua(int row, int col) {
-    // Asegúrate de que la posición esté dentro de los límites
     if (row >= 0 && row < rows && col >= 0 && col < cols) {
-        waterLevels[row][col] = waterLevel;  // Genera un cuerpo de agua en la celda donde cayó el agente
+        waterLevels[row][col] = waterLevel;  
     }
 }
 

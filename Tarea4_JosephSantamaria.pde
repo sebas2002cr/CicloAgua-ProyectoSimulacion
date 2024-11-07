@@ -47,13 +47,11 @@ void setup() {
     
     systems = new ArrayList<AgentSystem3D>();
     
-    //systems.add(new AgentSystem3D(0, 300, 0)); 
    
-    // Inicializar velocidades de los centros de nube
     cloudVelocities = new ArrayList<>();
     for (int i = 0; i < numCloudCenters; i++) {
         float vx = random(-1, 1);
-        float vy = 0;  // Mantén las nubes en el mismo plano
+        float vy = 0; 
         float vz = random(-1, 1);
         cloudVelocities.add(new PVector(vx, vy, vz));
     }
@@ -84,19 +82,17 @@ void draw() {
             float currentNoiseScale;
             float currentHeightScale;
 
-            // Se divide en 3 zonas 
             if (c < cols / 3) { // zona 1
-                currentNoiseScale = 0.3; // escala menor para montañas suaves
-                currentHeightScale = 120;   // menor altura
-            } else if (c < 2 * cols / 3) { // zona 2
-                currentNoiseScale = 0.8; // escala media
-                currentHeightScale = 140;   // altura media
+                currentNoiseScale = 0.3; 
+                currentHeightScale = 120;  
+            } else if (c < 2 * cols / 3) { 
+                currentNoiseScale = 0.8; 
+                currentHeightScale = 140;   
             } else { // zona 3
-                currentNoiseScale = 1.0; // escala mayor para montañas suaves
-                currentHeightScale = 180;  // mayor altura
+                currentNoiseScale = 1.0; 
+                currentHeightScale = 180;  
             }
 
-            // Generamos alturas usando ruido de Perlin
             float y1 = map(noise(c * currentNoiseScale, r * currentNoiseScale), 0, 1, 0, currentHeightScale);
             float y2 = map(noise(c * currentNoiseScale, (r + 1) * currentNoiseScale), 0, 1, 0, currentHeightScale);
             
@@ -114,12 +110,11 @@ void draw() {
                 fill(terrainColor);
             }
 
-            // Dibujar los vértices del terreno
             float x = map(c, 0, cols - 1, -800, 800);
             float z = map(r, 0, rows - 1, -800, 800);
-            vertex(x, 350 - y1, z); // Elevar el terreno debajo del nivel del agua
-            vertex(x, 350 - y2, z + (1600 / (rows - 1))); // 1600 porque el área es de -800 a 800
-            terrainHeights[r][c] = 350 - y1;  // Guardar la altura del terreno
+            vertex(x, 350 - y1, z); 
+            vertex(x, 350 - y2, z + (1600 / (rows - 1))); 
+            terrainHeights[r][c] = 350 - y1;  
 
       
     
@@ -127,11 +122,10 @@ void draw() {
         endShape();
     }
     
-    float cellOffsetX = (1600 / (cols - 1)) / 2 * 1.05;  // Multiplicar por 1.05 para que se solapen
+    float cellOffsetX = (1600 / (cols - 1)) / 2 * 1.05;  
     float cellOffsetZ = (1600 / (rows - 1)) / 2 * 1.05;
 
-    // Dibujar el agua como un plano continuo celda por celda, asegurando que no esté bajo el terreno
-    fill(0, 0, 255, 150); // Color del agua
+    fill(0, 0, 255, 150); 
     noStroke();
 
     for (int r = 0; r < rows; r++) {
@@ -139,11 +133,10 @@ void draw() {
             float x = map(c, 0, cols - 1, -800, 800);
             float z = map(r, 0, rows - 1, -800, 800);
             
-            float terrainHeight = terrainHeights[r][c]; // Obtener la altura del terreno
-            float currentWaterLevel = waterLevels[r][c]; // Obtener el nivel actual del agua
+            float terrainHeight = terrainHeights[r][c]; 
+            float currentWaterLevel = waterLevels[r][c]; 
 
             if (currentWaterLevel  < terrainHeight) {
-                // Dibujar agua solo si el nivel del agua está por encima del terreno en esa celda
                 beginShape(QUADS);
                 vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
                 vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
@@ -157,11 +150,6 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
-    // Control de precipitación (caída de partículas)
-    //if (isPrecipitating) {
-      //precipitateParticles();
-    //}
-
 if (solActive) {
     sol.display();
     sol.affectAgents(systems);
@@ -169,13 +157,12 @@ if (solActive) {
   } else if (isRaining) {
     precipitateParticles();  
   } else if (!solActive) {
-    sol.reduceHeatZone(); // Enfriamiento cuando el sol está apagado
+    sol.reduceHeatZone(); 
   }
 
 
 
 
-    // Actualizar y detener partículas en la nube sin eliminarlas
     for (int i = systems.size() - 1; i >= 0; i--) {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0; j--) {
@@ -183,7 +170,7 @@ if (solActive) {
             agent.update();
             
             if (agent.checkCollisionWithNube()) {
-                agent.isActive = false; // Desactiva la partícula para que se mantenga en la nube
+                agent.isActive = false; 
             }
         }
         s.run();  
@@ -198,12 +185,10 @@ if (solActive) {
 void moveCloudCenters() {
     for (int i = 0; i < cloudCenters.size(); i++) {
         PVector center = cloudCenters.get(i);
-        PVector velocity = cloudVelocities.get(i).mult(0.1);  // Reducir velocidad para movimiento lento
+        PVector velocity = cloudVelocities.get(i).mult(0.1);  
 
-        // Actualiza la posición del centro de nube
         center.add(velocity);
 
-        // Verifica los límites y hace que la nube rebote
         if (center.x < -800 || center.x > 800) velocity.x *= -1;
         if (center.z < -800 || center.z > 800) velocity.z *= -1;
     }
@@ -216,15 +201,13 @@ void precipitateParticles() {
         for (int j = s.agents.size() - 1; j >= 0; j--) {
             Agent3D agent = s.agents.get(j);
             
-            // si la partícula ya está en la nube y no está activa, hazla caer
-            if (!agent.isActive && agent.pos.y > 300) {  // comienza a caer solo si está sobre el suelo
-                PVector gravity = new PVector(0, 0.2, 0);  // gravedad aumentada para caída más rápida
+            if (!agent.isActive && agent.pos.y > 300) {  
+                PVector gravity = new PVector(0, 0.2, 0);  
                 agent.applyForce(gravity);
 
-                // detén la partícula al llegar al suelo
                 if (agent.pos.y >= 300) {
-                    agent.pos.y = 300;  // asegura que esté en el suelo
-                    agent.vel.set(0, 0, 0);  // detén la velocidad
+                    agent.pos.y = 300;  
+                    agent.vel.set(0, 0, 0);  
                 }
             }
         }
@@ -269,7 +252,6 @@ void colocarAgua() {
     }
 }
 
-//MUROS DE LA CAJA --------------
 void drawWalls() {
   beginShape(QUADS);
   vertex(-800, 300, -800); 
@@ -302,7 +284,6 @@ void drawWalls() {
 }
 
 
-//TECLAS ------------------------------
 void keyPressed() {
   if (key == 's') {
     AgentSystem3D s = new AgentSystem3D(0, 300, 0);
@@ -313,7 +294,7 @@ void keyPressed() {
         colocarAgua();
     }
   
-  if (key == 't') {  // 't' para encender o apagar el sol
+  if (key == 't') {  
     sol.toggleSun();
   }
     
@@ -322,7 +303,7 @@ void keyPressed() {
   }
   
   if (key == 'p' || key == 'P') {
-    isRaining = !isRaining; // Activa o desactiva la lluvia
+    isRaining = !isRaining; 
   }
     
   if (key == 'g') {

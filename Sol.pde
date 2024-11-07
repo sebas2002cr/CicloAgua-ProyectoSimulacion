@@ -126,16 +126,15 @@ void expandHeatZone(float[][] terrainHeights, float[][] waterLevels) {
         float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
         if (distance >= heatRadius) {
-          heatMap[i][j] = false;  // Marca como no caliente para detener la evaporación
+          heatMap[i][j] = false;  
         }
       }
     }
 
-    // Reduce el radio de calor para que el enfriamiento sea gradual
     if (heatRadius > 100) {
       heatRadius -= 2;
     } else {
-      isCooling = false;  // Detiene el enfriamiento cuando el radio de calor llega a su valor mínimo
+      isCooling = false;  
     }
   }
 

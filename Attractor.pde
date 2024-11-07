@@ -54,10 +54,10 @@ class Attractor {
 
 void display() {
     noStroke();
-    fill(121, 210, 230);  // Color base de la esfera
+    fill(121, 210, 230);  
     pushMatrix();
     translate(pos.x, pos.y, pos.z);
-    sphere(mass / 10);  // Esfera principal
+    sphere(mass / 10);  
     popMatrix();
     
     // Definir 5 colores pastel
@@ -69,26 +69,22 @@ void display() {
         color(225, 186, 255)   // Morado pastel
     };
     
-    int numSpots = 10;  // Número de manchas
+    int numSpots = 10;  
     for (int i = 0; i < numSpots; i++) {
         pushMatrix();
-        // Posición aleatoria para cada mancha en la superficie de la esfera
         float spotX = random(-mass / 10, mass / 10);
         float spotY = random(-mass / 10, mass / 10);
         float spotZ = random(-mass / 10, mass / 10);
         
         translate(pos.x + spotX, pos.y + spotY, pos.z + spotZ);
         
-        // Escoger un color pastel aleatorio de la lista
         fill(pastelColors[i % pastelColors.length]);
         
-        // Dibujar una pequeña esfera como la mancha
-        sphere(mass / 50);  // Tamaño pequeño para las manchas
+        sphere(mass / 50);  
         
         popMatrix();
     }
     
-    // Texto informativo
     fill(255);  
     textAlign(CENTER, CENTER);
     textSize(40);

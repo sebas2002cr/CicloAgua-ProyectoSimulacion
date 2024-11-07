@@ -75,7 +75,7 @@ void run() {
 
 void releaseSomeParticles() {
         for (int i = 0; i < agents.size(); i++) {
-            if (random(1) < 0.8) {  // 30% de probabilidad de dejar caer cada partícula
+            if (random(1) < 0.8) {  
                 agents.get(i).isFalling = true;
                 agents.get(i).isActive = false;
             }
@@ -87,8 +87,8 @@ void addAgent() {
 
   int numNewAgents = (int) random(1, 4);
   for (int i = 0; i < numNewAgents; i++) {
-    float offsetX = random(-500, 500);  //desplazamiento aleatorio en X
-    float offsetZ = random(-500, 500);  //desplazamiento aleatorio en Z
+    float offsetX = random(-500, 500);  
+    float offsetZ = random(-500, 500);  
     
     Agent3D agent1 = new Agent3D(pos.x + offsetX, pos.y, pos.z - offsetZ);
     Agent3D agent2 = new Agent3D(pos.x + offsetX, pos.y, pos.z + offsetZ);
@@ -106,7 +106,6 @@ void addAgent() {
   }
 }
 
-//FLOCKING ----------------
   void align() {
     for (Agent3D a : agents) {
       a.align(agents);

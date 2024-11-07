@@ -78,7 +78,7 @@ class FlowField {
     updateGrid();
     for (AgentSystem3D s : systems) {
       for (Agent3D a : s.agents) {
-        //a.addForce(getVector(a.pos.x, a.pos.y));  
+       
       }
     }
   }
