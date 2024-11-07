@@ -298,7 +298,6 @@ void keyPressed() {
   
   if (key == 'p' || key == 'P') {
             isRaining = !isRaining;
-            println("isRaining changed to: " + isRaining);
         }
     
   if (key == 'g') {
