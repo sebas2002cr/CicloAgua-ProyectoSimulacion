@@ -84,12 +84,15 @@ void releaseSomeParticles() {
 
 void addAgent() {
   if (!generatingAgents) return;  
-  
-  int numNewAgents = (int) random(0, 3);
+
+  int numNewAgents = (int) random(1, 4);
   for (int i = 0; i < numNewAgents; i++) {
-    Agent3D agent1 = new Agent3D(pos.x, pos.y, pos.z);
-    Agent3D agent2 = new Agent3D(pos.x + 20, pos.y, pos.z);
-    Agent3D agent3 = new Agent3D(pos.x - 20, pos.y, pos.z);
+    float offsetX = random(-500, 500);  //desplazamiento aleatorio en X
+    float offsetZ = random(-500, 500);  //desplazamiento aleatorio en Z
+    
+    Agent3D agent1 = new Agent3D(pos.x + offsetX, pos.y, pos.z - offsetZ);
+    Agent3D agent2 = new Agent3D(pos.x + offsetX, pos.y, pos.z + offsetZ);
+    Agent3D agent3 = new Agent3D(pos.x - offsetX, pos.y, pos.z - offsetZ);
 
     PVector f = new PVector(random(-1, 1), 0, random(1, 2));
     f.setMag(random(50, 200));
