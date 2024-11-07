@@ -321,4 +321,4 @@ class Agent3D {
       applyForce(dif);
     }
   }
-}
+} 
