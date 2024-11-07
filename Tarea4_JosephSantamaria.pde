@@ -74,7 +74,7 @@ void draw() {
     translate(0, 0, 0); 
     noStroke();
     
-    float[][] terrainHeights = new float[rows][cols];  
+    float[][] terrainHeights = new float[rows][cols]; 
 
 
     for (int r = 0; r < rows - 1; r++) {
@@ -146,9 +146,9 @@ void draw() {
                 // Dibujar agua solo si el nivel del agua está por encima del terreno en esa celda
                 beginShape(QUADS);
                 vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-            vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-            vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
-            vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
+                vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
+                vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
+                vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
                 endShape();
             }
         }
@@ -157,10 +157,6 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
-    
-    
-   
-  
     // Control de precipitación (caída de partículas)
     //if (isPrecipitating) {
       //precipitateParticles();

@@ -132,7 +132,7 @@ void update() {
         
         
          if (pos.y >= 300) {
-            pos.y = 300;
+            pos.y = 320;
             isFalling = false; 
             isReadyToFall = false;  // Reinicia para la siguiente caída
             
@@ -141,7 +141,8 @@ void update() {
         
         // Generar cuerpo de agua
         generarCuerpoDeAgua(row, col);
-            
+        
+        if (pos.y == 320) {vel = new PVector(0, 0, 0);}
         }
 
     vel.add(acc);
