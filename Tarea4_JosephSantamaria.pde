@@ -36,7 +36,7 @@ void setup() {
     cam = new PeasyCam(this, 0, 0, 0, 2000);
   
     attractors = new ArrayList();
-    sol = new Sol(800, -600, 1000, 400, 2500, 15);
+    sol = new Sol(800, -600, 1000, 200, 2500, 15);
     heatMap = new boolean[40][40];
 
     
