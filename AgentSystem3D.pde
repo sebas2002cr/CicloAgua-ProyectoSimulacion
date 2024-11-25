@@ -43,13 +43,15 @@ class AgentSystem3D {
     addAgent();
   }
 
-
   void run() {
     if (!flockingStarted) {
       flockingStartTime = millis(); 
       flockingStarted = true;
     }
-
+    
+    if (millis() - flockingStartTime > 30000 && isRaining) {  
+      releaseSomeParticles();
+    }
     
     for (Agent3D a : agents) {
       if (a.isActive && a.pos.y < flockingHeight) { 
@@ -64,16 +66,16 @@ class AgentSystem3D {
     addAgent();
   }
 
-  //void releaseSomeParticles() {
-  //  if (!isRaining) return; 
+  void releaseSomeParticles() {
+    if (!isRaining) return; 
 
-  //  for (int i = 0; i < agents.size(); i++) {
-  //    if (random(1) < 0.05) {  
-  //      agents.get(i).isFalling = true;
-  //      agents.get(i).isActive = false;
-  //    }
-  //  }
-  //}
+    for (int i = 0; i < agents.size(); i++) {
+      if (random(1) < 0.05) {  
+        agents.get(i).isFalling = true;
+        agents.get(i).isActive = false;
+      }
+    }
+  }
 
   void addAgent() {
     if (!generatingAgents) return;  
@@ -97,7 +99,6 @@ class AgentSystem3D {
       agents.add(agent2);
       agents.add(agent3);
     }
-
   }
 
   void align() {
