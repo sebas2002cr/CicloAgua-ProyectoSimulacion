@@ -132,14 +132,17 @@ void draw() {
             float terrainHeight = terrainHeights[r][c]; 
             float currentWaterLevel = waterLevels[r][c]; 
 
-            if (currentWaterLevel  < terrainHeight) {
-                beginShape(QUADS);
-                vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-                vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-                vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
-                vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
-                endShape();
-            }
+if (currentWaterLevel < terrainHeight) {
+    beginShape(QUADS);
+    vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
+    vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
+    vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
+    vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
+    endShape();
+}
+
+
+
         }
     }
 

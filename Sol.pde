@@ -93,14 +93,14 @@ void expandHeatZone(float[][] terrainHeights, float[][] waterLevels) {
             float z = map(j, 0, 40, -800, 800);
             float distance = dist(x, 0, z, pos.x, 0, pos.z);
 
-            if (distance < heatRadius) {
-                heatMap[i][j] = true;
+              if (distance < heatRadius) {
+                  heatMap[i][j] = true;
+              
+                  if (waterLevels[i][j] < terrainHeights[i][j] + 5) {
+                      waterLevels[i][j] = lerp(waterLevels[i][j], terrainHeights[i][j] + 5, 0.1);
+                  }
+              }
 
-                if (waterLevels[i][j]  < terrainHeights[i][j]) {
-                  
-                    waterLevels[i][j] += 5;  
-                }
-            }
 
             if (!heatMap[i][j]) {
                 allHeated = false;

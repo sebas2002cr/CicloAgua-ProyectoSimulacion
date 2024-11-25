@@ -98,6 +98,10 @@ class Agent3D {
   }
   
   void update() {
+    
+    
+    
+    
     if (isActive) {
         if (pos.y > maxHeight) {
             PVector upwardForce = new PVector(0, 0.00001, 0);
@@ -137,7 +141,9 @@ class Agent3D {
         int col = int(map(pos.x, -800, 800, 0, cols - 1));
         int row = int(map(pos.z, -800, 800, 0, rows - 1));
 
-        generarCuerpoDeAgua(row, col);
+        int agentesEnElMismoLugar = contarAgentesEnCelda(row, col); // Calcula los agentes en esta celda
+        generarCuerpoDeAgua(row, col, agentesEnElMismoLugar);
+
 
         vel = new PVector(0, 0, 0);
     }
@@ -277,11 +283,62 @@ class Agent3D {
       applyForce(result);
     }
   }
+  
+  void generarCuerpoDeAgua(int row, int col, int agentesEnElMismoLugar) {
+      if (row >= 0 && row < rows && col >= 0 && col < cols) {
+          int baseRadius = 3; 
+          int radius = baseRadius + (int)map(agentesEnElMismoLugar, 1, 30, 0, 5); 
+  
+          for (int i = -radius; i <= radius; i++) {
+              for (int j = -radius; j <= radius; j++) {
+                  int neighborRow = row + i;
+                  int neighborCol = col + j;
+  
+                  if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
+                    
+                    
+                    
+                      float distance = dist(row, col, neighborRow, neighborCol);
+                      
+                      
+                      if (distance <= radius) {
+                        
+                        
+                          float impacto = (float)agentesEnElMismoLugar  / (distance + 1); 
+                          
+                          
+                          
+                          float adjustedImpacto = impacto / (distance + 1 ); 
+                          
+                          
+                          waterLevels[neighborRow][ neighborCol ] = lerp(
+                          
+                              waterLevels[neighborRow][neighborCol],
+                              
+                              max(waterLevels[neighborRow][neighborCol] - adjustedImpacto, waterLevel),
+                              0.2 
+                          );
 
-  void generarCuerpoDeAgua(int row, int col) {
-    if (row >= 0 && row < rows && col >= 0 && col < cols) {
-      waterLevels[row][col] = waterLevel;  
-    }
+                      }
+                  }
+              }
+          }
+      }
+  }
+  
+  int contarAgentesEnCelda(int row, int col) {
+      int count = 0;
+      for (AgentSystem3D system : systems) { 
+          for (Agent3D agent : system.agents) {
+              int agentRow = int(map(agent.pos.z, -800, 800, 0, rows - 1));
+              int agentCol = int(map(agent.pos.x, -800, 800, 0, cols - 1));
+              
+              if (agentRow == row && agentCol == col) {
+                  count++;
+              }
+          }
+      }
+      return count;
   }
 
   void separate(ArrayList<Agent3D> agents) {
