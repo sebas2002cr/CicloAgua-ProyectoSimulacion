@@ -47,12 +47,11 @@ class Agent3D {
   float cohesionRatio = 2;
   
   float fallDelay;
-    int lastFallAttempt;
+
+  int lastFallAttempt;
     
   Agent3D(float x, float y, float z) {
-    
-    
-    
+
     pos = new PVector(x, y, z);
     vel = new PVector(0, 0, 0);
     acc = new PVector(0, 0, 0);
@@ -60,9 +59,10 @@ class Agent3D {
     colorMode(RGB);
     c = color(255, 255, 255, 255); 
     
-    
-    fallDelay = random(2000, 8000) + random(-1000, 1000); 
-    lastFallAttempt = millis() + int(random(-1000, 1000));
+
+    fallDelay = random(2000, 8000); // Retraso aleatorio para el comienzo de la caída
+    lastFallAttempt = millis() + int(random(-1000, 1000)); 
+
 
     mass = random(500, 800);
     massLoss = 0.8;
@@ -78,8 +78,8 @@ class Agent3D {
     fallDelay = random(3000, 8000);
   }
   
-  private float r() {
-    return pow(3 * mass / 4 / PI, 1.0/3.0);
+  float r() {
+    return pow(3 * mass / 4 / PI, 1.0 / 3.0);
   }
 
   boolean isDead() {
@@ -91,7 +91,7 @@ class Agent3D {
       fill(c);
       noStroke();
       pushMatrix();
-      translate(pos.x, pos.y+25, pos.z);
+      translate(pos.x, pos.y + 25, pos.z);
       box(r());
       popMatrix();
     }
@@ -99,72 +99,71 @@ class Agent3D {
   
   void update() {
     if (isActive) {
-        if (pos.y > maxHeight) {
-            PVector upwardForce = new PVector(0, 0.00001, 0);
-            applyForce(upwardForce);
-        } else {
-            vel.y = 0;
-            acc.y = 0;
-            isActive = false;
-            isFalling = false;
-            timeSinceActivated = millis();
-        }
+      if (pos.y > maxHeight) {
+        PVector upwardForce = new PVector(0, 0.00001, 0);
+        applyForce(upwardForce);
+      } else {
+        vel.y = 0;
+        acc.y = 0;
+        isActive = false;
+        isFalling = false;
+        timeSinceActivated = millis();
+      }
     }
 
     if (isFalling && !isReadyToFall && isRaining) {
-        if (millis() - timeSinceActivated >= fallDelay) {
-            isReadyToFall = true;
-        }
+      if (millis() - timeSinceActivated >= fallDelay) {
+        isReadyToFall = true;
+      }
     }
 
     if (isReadyToFall && isRaining) {
-        applyGravity();
+      applyGravity();
     }
-    
-    if (isFalling) {
-    applyGravity();
-    if (vel.mag() < 0.1) {
-        vel.y = 0.05; 
-    }
-}
 
+
+    if (isFalling) {
+      applyGravity();
+      if (vel.mag() < 0.1) {
+        vel.y = 0.05; 
+      }
+    }
 
     if (pos.y >= 300) {
-        pos.y = 300;
-        isFalling = false;
-        isReadyToFall = false;
+      pos.y = 300;
+      isFalling = false;
+      isReadyToFall = false;
 
-        int col = int(map(pos.x, -800, 800, 0, cols - 1));
-        int row = int(map(pos.z, -800, 800, 0, rows - 1));
+      int col = int(map(pos.x, -800, 800, 0, cols - 1));
+      int row = int(map(pos.z, -800, 800, 0, rows - 1));
 
-        generarCuerpoDeAgua(row, col);
+      generarCuerpoDeAgua(row, col);
 
-        vel = new PVector(0, 0, 0);
+      vel = new PVector(0, 0, 0);
     }
 
+    // Aplicar la aceleración al vector de velocidad
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
 
-    float damp = 0.5;
-
     if (!onFloor && !attracted) {
-        acc.add(new PVector(0, 0.001, 0));
+      acc.add(new PVector(0, 0.001, 0));
     }
 
     if (onFloor && attracted) {
-        PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); 
-        vel.add(viento);
+      PVector viento = new PVector(random(-0.6, 0.6), -0.5, random(-0.6, 0.6)); 
+      vel.add(viento);
     }
 
     if (pos.x <= -800 || pos.x >= 800) {
-        vel.x *= -1;
-        pos.x = constrain(pos.x, -800, 800);
+      vel.x *= -1;
+      pos.x = constrain(pos.x, -800, 800);
     }
 
     if (pos.z <= -800 || pos.z >= 800) {
-        vel.z *= -1;
-        pos.z = constrain(pos.z, -800, 800);
+      vel.z *= -1;
+      pos.z = constrain(pos.z, -800, 800);
     }
 
     float dragCoefficient = 0.01;
@@ -176,34 +175,35 @@ class Agent3D {
     pos.add(vel);
 
     if (pos.y >= 300) {
-        onFloor = true;
-        pos.y = 300;
-        isFalling = false; 
-        isReadyToFall = false;
+      onFloor = true;
+      pos.y = 300;
+      isFalling = false; 
+      isReadyToFall = false;
 
-        PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6));
-        vel.add(viento);
+      PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6));
+      vel.add(viento);
+
     }
 
     acc.mult(0);
 
     if (mass < 0.1) {
-        mass = 0.1;
+      mass = 0.1;
     }
 
     if (pos.y < maxHeight) {
-        pos.y = maxHeight;
-        vel.y = 0;
+      pos.y = maxHeight;
+      vel.y = 0;
     }
   }
   
-    boolean isEligibleToFall() {
-        if (millis() - lastFallAttempt >= fallDelay) {
-            lastFallAttempt = millis() + int(random(-1000, 1000)); 
-            return true;
-        }
-        return false;
+  boolean isEligibleToFall() {
+    if (millis() - lastFallAttempt >= fallDelay) {
+      lastFallAttempt = millis() + int(random(-1000, 1000)); 
+      return true;
     }
+    return false;
+  }
 
 
   void setAffectedBySun(boolean affected) {
@@ -235,6 +235,7 @@ class Agent3D {
     return false;
   }
 
+
   Attractor getClosestAttractor() {
     float minDist = Float.MAX_VALUE;
     Attractor closest = null;
@@ -250,6 +251,7 @@ class Agent3D {
     return closest;
   }
 
+
   void applyGravity() {
     PVector gravity = new PVector(0, 0.05, 0); 
     applyForce(gravity);
@@ -261,6 +263,8 @@ class Agent3D {
 
   // FLOCKING -------------
   boolean debug = false;
+
+
   void align(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;
@@ -321,4 +325,6 @@ class Agent3D {
       applyForce(dif);
     }
   }
+
 } 
+
