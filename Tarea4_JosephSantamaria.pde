@@ -3,6 +3,10 @@ Nube nube;
 
 boolean generatingAgents = true;
 boolean isRaining = false;
+boolean rainCycleActive = false;
+int lastRainStartTime = 0;
+int rainingDuration = 1000; // La lluvia dura 1 segundo
+int rainingCycleInterval = 15000; // Intervalo entre cada lluvia de 5 segundos
 import peasy.*;
 
 PeasyCam cam;
@@ -146,15 +150,19 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
-if (isRaining) {
-            precipitateParticles();
-        } else if (solActive) {
-            sol.display();
-            sol.affectAgents(systems);
-            sol.expandHeatZone(terrainHeights, waterLevels);
-        } else {
-            sol.reduceHeatZone();
-        }
+
+    // Mostrar el sol si está activo
+    if (solActive) {
+        sol.display();
+        sol.affectAgents(systems);
+        sol.expandHeatZone(terrainHeights, waterLevels);
+    } else {
+        sol.reduceHeatZone();
+    }
+
+    // Manejar el ciclo de lluvia
+    handleRainCycle();
+
 
 
 
@@ -177,6 +185,30 @@ if (isRaining) {
     }
 }
 
+void handleRainCycle() {
+    if (rainCycleActive) {
+        int currentTime = millis();
+        
+        if (isRaining) {
+            // Si ha pasado el tiempo de lluvia, parar la lluvia
+            if (currentTime - lastRainStartTime >= rainingDuration) {
+                isRaining = false;
+                lastRainStartTime = currentTime; // Actualizar el tiempo de inicio al detenerse la lluvia
+            }
+        } else {
+            // Si ha pasado el tiempo de descanso, empezar a llover de nuevo
+            if (currentTime - lastRainStartTime >= rainingCycleInterval) {
+                isRaining = true;
+                lastRainStartTime = currentTime; // Registrar el nuevo tiempo de inicio
+            }
+        }
+    }
+
+    if (isRaining) {
+        precipitateParticles();
+    }
+}
+
 
 void moveCloudCenters() {
     for (int i = 0; i < cloudCenters.size(); i++) {
@@ -189,20 +221,25 @@ void moveCloudCenters() {
         if (center.z < -800 || center.z > 800) velocity.z *= -1;
     }
 }
+
 void precipitateParticles() {
-    for (int i = systems.size() - 1; i >= 0; i--) {
+    int maxParticlesToFallPerCycle = 1; // Ajustar para cambiar la intensidad de la lluvia (mayor valor, más intensa)
+    int particlesFalling = 0;
+
+    for (int i = systems.size() - 1; i >= 0 && particlesFalling < maxParticlesToFallPerCycle; i--) {
         AgentSystem3D s = systems.get(i);
-        for (int j = s.agents.size() - 1; j >= 0; j--) {
+        for (int j = s.agents.size() - 1; j >= 0 && particlesFalling < maxParticlesToFallPerCycle; j--) {
             Agent3D agent = s.agents.get(j);
 
-            if (!agent.isActive && !agent.isFalling && isRaining) {
-                if (agent.isEligibleToFall()) {
-                    agent.isFalling = true; 
-                }
+
+            if (!agent.isActive && !agent.isFalling && isRaining && agent.isEligibleToFall()) {
+                agent.isFalling = true;
+                particlesFalling++;
             }
         }
     }
 }
+
 
 
 
@@ -296,9 +333,15 @@ void keyPressed() {
     solActive = !solActive;  
   }
   
-  if (key == 'p' || key == 'P') {
-            isRaining = !isRaining;
-        }
+
+if (key == 'p' || key == 'P') {
+    if (!rainCycleActive) {
+      isRaining = true;  // Activar la lluvia inicialmente
+      lastRainStartTime = millis(); // Registrar el tiempo de inicio de la lluvia
+      rainCycleActive = true; // Marcar que el ciclo de lluvia ha comenzado
+    }
+  }
+
     
   if (key == 'g') {
     generatingAgents = !generatingAgents;  
