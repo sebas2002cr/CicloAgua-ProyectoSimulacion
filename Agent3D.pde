@@ -36,6 +36,7 @@ class Agent3D {
   float arrivalRadius = 100;
   BorderBehaviour borderBehaviour;
 
+
   float alignmentRadio = 80;
   float alignmentRatio = 0.2;
 
@@ -46,9 +47,11 @@ class Agent3D {
   float cohesionRatio = 2;
   
   float fallDelay;
+
   int lastFallAttempt;
     
   Agent3D(float x, float y, float z) {
+
     pos = new PVector(x, y, z);
     vel = new PVector(0, 0, 0);
     acc = new PVector(0, 0, 0);
@@ -56,8 +59,10 @@ class Agent3D {
     colorMode(RGB);
     c = color(255, 255, 255, 255); 
     
+
     fallDelay = random(2000, 8000); // Retraso aleatorio para el comienzo de la caída
     lastFallAttempt = millis() + int(random(-1000, 1000)); 
+
 
     mass = random(500, 800);
     massLoss = 0.8;
@@ -115,6 +120,7 @@ class Agent3D {
     if (isReadyToFall && isRaining) {
       applyGravity();
     }
+
 
     if (isFalling) {
       applyGravity();
@@ -176,6 +182,7 @@ class Agent3D {
 
       PVector viento = new PVector(random(-0.6, 0.6), 0, random(-0.6, 0.6));
       vel.add(viento);
+
     }
 
     acc.mult(0);
@@ -197,6 +204,7 @@ class Agent3D {
     }
     return false;
   }
+
 
   void setAffectedBySun(boolean affected) {
     isAffectedBySun = affected;
@@ -227,6 +235,7 @@ class Agent3D {
     return false;
   }
 
+
   Attractor getClosestAttractor() {
     float minDist = Float.MAX_VALUE;
     Attractor closest = null;
@@ -242,6 +251,7 @@ class Agent3D {
     return closest;
   }
 
+
   void applyGravity() {
     PVector gravity = new PVector(0, 0.05, 0); 
     applyForce(gravity);
@@ -253,6 +263,7 @@ class Agent3D {
 
   // FLOCKING -------------
   boolean debug = false;
+
 
   void align(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
@@ -314,4 +325,6 @@ class Agent3D {
       applyForce(dif);
     }
   }
-}
+
+} 
+

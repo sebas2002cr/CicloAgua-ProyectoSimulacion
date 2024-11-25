@@ -150,6 +150,7 @@ void draw() {
     fill(100, 100, 100, 150);
     drawWalls();
 
+
     // Mostrar el sol si está activo
     if (solActive) {
         sol.display();
@@ -161,6 +162,7 @@ void draw() {
 
     // Manejar el ciclo de lluvia
     handleRainCycle();
+
 
 
 
@@ -220,7 +222,6 @@ void moveCloudCenters() {
     }
 }
 
-
 void precipitateParticles() {
     int maxParticlesToFallPerCycle = 1; // Ajustar para cambiar la intensidad de la lluvia (mayor valor, más intensa)
     int particlesFalling = 0;
@@ -229,6 +230,7 @@ void precipitateParticles() {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0 && particlesFalling < maxParticlesToFallPerCycle; j--) {
             Agent3D agent = s.agents.get(j);
+
 
             if (!agent.isActive && !agent.isFalling && isRaining && agent.isEligibleToFall()) {
                 agent.isFalling = true;
@@ -331,6 +333,7 @@ void keyPressed() {
     solActive = !solActive;  
   }
   
+
 if (key == 'p' || key == 'P') {
     if (!rainCycleActive) {
       isRaining = true;  // Activar la lluvia inicialmente
@@ -338,6 +341,7 @@ if (key == 'p' || key == 'P') {
       rainCycleActive = true; // Marcar que el ciclo de lluvia ha comenzado
     }
   }
+
     
   if (key == 'g') {
     generatingAgents = !generatingAgents;  

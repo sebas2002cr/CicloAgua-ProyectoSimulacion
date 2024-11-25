@@ -43,12 +43,12 @@ class AgentSystem3D {
     addAgent();
   }
 
+
   void run() {
     if (!flockingStarted) {
       flockingStartTime = millis(); 
       flockingStarted = true;
     }
-    
 
     
     for (Agent3D a : agents) {
@@ -97,6 +97,7 @@ class AgentSystem3D {
       agents.add(agent2);
       agents.add(agent3);
     }
+
   }
 
   void align() {
