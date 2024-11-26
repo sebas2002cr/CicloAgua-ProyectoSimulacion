@@ -17,6 +17,12 @@ class Agent3D {
   float massLoss;
   float angX;
   float angXVel;
+  
+  
+  boolean isResting = false;  
+  int restStartTime = 0;        
+  int restDuration = 5000;      
+  
   float angY;
   float angYVel;
   float angZ;
@@ -99,6 +105,13 @@ class Agent3D {
   
   void update() {
     
+      if (isResting) {
+        // Si está en reposo, verifica si ya terminó el tiempo de reposo
+        if (millis() - restStartTime >= restDuration) {
+            isResting = false;  // Salir del estado de reposo
+        }
+        return; // Detén el procesamiento mientras esté en reposo
+    }
     
     
     
@@ -137,11 +150,12 @@ class Agent3D {
         pos.y = 300;
         isFalling = false;
         isReadyToFall = false;
+        onFloor = true; // Marcar que está en el suelo
 
         int col = int(map(pos.x, -800, 800, 0, cols - 1));
         int row = int(map(pos.z, -800, 800, 0, rows - 1));
 
-        int agentesEnElMismoLugar = contarAgentesEnCelda(row, col); // Calcula los agentes en esta celda
+        int agentesEnElMismoLugar = contarAgentesEnCelda(row, col); 
         generarCuerpoDeAgua(row, col, agentesEnElMismoLugar);
 
 
@@ -151,7 +165,9 @@ class Agent3D {
     vel.add(acc);
     pos.add(vel);
     acc.mult(0);
-
+    
+  
+    
     float damp = 0.5;
 
     if (!onFloor && !attracted) {
@@ -304,11 +320,11 @@ class Agent3D {
                       if (distance <= radius) {
                         
                         
-                          float impacto = (float)agentesEnElMismoLugar  / (distance + 1); 
+                          float impacto = (float)agentesEnElMismoLugar  / (distance + 4); 
                           
                           
                           
-                          float adjustedImpacto = impacto / (distance + 1 ); 
+                          float adjustedImpacto = impacto / (distance + 3 ); 
                           
                           
                           waterLevels[neighborRow][ neighborCol ] = lerp(
@@ -316,7 +332,7 @@ class Agent3D {
                               waterLevels[neighborRow][neighborCol],
                               
                               max(waterLevels[neighborRow][neighborCol] - adjustedImpacto, waterLevel),
-                              0.2 
+                              0.8 
                           );
 
                       }
@@ -340,7 +356,7 @@ class Agent3D {
       }
       return count;
   }
-
+  
   void separate(ArrayList<Agent3D> agents) {
     PVector result = new PVector(0, 0, 0);
     int n = 0;

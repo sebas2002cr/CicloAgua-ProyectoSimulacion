@@ -5,10 +5,11 @@ class AgentSystem3D {
   PVector pos;
   ArrayList<Agent3D> agents;
   ArrayList<Attractor> attractors;
-  float flockingHeight = -100; 
+  float flockingHeight = 250; 
   int flockingStartTime; 
   float topHeight = -200;
   boolean flockingStarted = false;
+  
 
   AgentSystem3D(float x, float y, float z) {
     pos = new PVector(x, y, z);
@@ -44,25 +45,24 @@ class AgentSystem3D {
   }
 
   void run() {
-    if (!flockingStarted) {
-      flockingStartTime = millis(); 
-      flockingStarted = true;
-    }
-    
-
-    for (Agent3D a : agents) {
-      if (a.isActive && a.pos.y < flockingHeight) { 
-        flocking();
-        a.align(agents);
-        a.separate(agents);
-        a.cohere(agents);
+      if (!flockingStarted) {
+          flockingStartTime = millis();
+          flockingStarted = true;
       }
-      a.update();
-      a.display();
-    }
-    addAgent();
+  
+      for (Agent3D a : agents) {
+          // Solo activar flocking si está por encima de flockingHeight y no está en el suelo
+          if (a.pos.y < flockingHeight ) {
+              a.align(agents);
+              a.separate(agents);
+              a.cohere(agents);
+          }
+          a.update();  // Actualizar el agente
+          a.display(); // Dibujar el agente
+      }
+      addAgent(); // Agregar nuevos agentes
   }
-
+  
 
 
   void addAgent() {
@@ -107,11 +107,12 @@ class AgentSystem3D {
     }
   }
   
-  void flocking() {
-    for (Agent3D agent : agents) {
-      agent.align(agents);
-      agent.separate(agents);
-      agent.cohere(agents);
-    }
-  }
+  //void flocking() {
+ //   for (Agent3D agent : agents) {
+  //    agent.align(agents);
+  //    agent.separate(agents);
+   //   agent.cohere(agents);
+  //  }
+//  }
+  
 }
