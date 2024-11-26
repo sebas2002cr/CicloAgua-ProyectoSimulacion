@@ -67,7 +67,7 @@ class Agent3D {
     c = color(255, 255, 255, 255); 
     
     
-    fallDelay = random(2000, 8000); // Retraso aleatorio para el comienzo de la caída
+    fallDelay = random(2000, 8000);
     lastFallAttempt = millis() + int(random(-1000, 1000)); 
 
     mass = random(500, 800);
@@ -106,11 +106,10 @@ class Agent3D {
   void update() {
     
       if (isResting) {
-        // Si está en reposo, verifica si ya terminó el tiempo de reposo
         if (millis() - restStartTime >= restDuration) {
-            isResting = false;  // Salir del estado de reposo
+            isResting = false;  
         }
-        return; // Detén el procesamiento mientras esté en reposo
+        return;
     }
     
     
@@ -300,48 +299,36 @@ class Agent3D {
     }
   }
   
-  void generarCuerpoDeAgua(int row, int col, int agentesEnElMismoLugar) {
-      if (row >= 0 && row < rows && col >= 0 && col < cols) {
-          int baseRadius = 3; 
-          int radius = baseRadius + (int)map(agentesEnElMismoLugar, 1, 30, 0, 5); 
-  
-          for (int i = -radius; i <= radius; i++) {
-              for (int j = -radius; j <= radius; j++) {
-                  int neighborRow = row + i;
-                  int neighborCol = col + j;
-  
-                  if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
-                    
-                    
-                    
-                      float distance = dist(row, col, neighborRow, neighborCol);
-                      
-                      
-                      if (distance <= radius) {
-                        
-                        
-                          float impacto = (float)agentesEnElMismoLugar  / (distance + 4); 
-                          
-                          
-                          
-                          float adjustedImpacto = impacto / (distance + 3 ); 
-                          
-                          
-                          waterLevels[neighborRow][ neighborCol ] = lerp(
-                          
-                              waterLevels[neighborRow][neighborCol],
-                              
-                              max(waterLevels[neighborRow][neighborCol] - adjustedImpacto, waterLevel),
-                              0.8 
-                          );
+void generarCuerpoDeAgua(int row, int col, int agentesEnElMismoLugar) {
+    if (row >= 0 && row < rows && col >= 0 && col < cols) {
+        int baseRadius = 3;
+        int radius = baseRadius + (int)map(agentesEnElMismoLugar, 1, 30, 0, 5); 
+        
+        for (int i = -radius; i <= radius; i++) {
+            for (int j = -radius; j <= radius; j++) {
+                int neighborRow = row + i;
+                int neighborCol = col + j;
 
-                      }
-                  }
-              }
-          }
-      }
-  }
-  
+                if (neighborRow >= 0 && neighborRow < rows && neighborCol >= 0 && neighborCol < cols) {
+                    float distance = dist(row, col, neighborRow, neighborCol);
+
+                    if (distance <= radius) {
+                        float impacto = max((float)agentesEnElMismoLugar / (distance + 4), 0.001); 
+
+                        float adjustedImpacto = impacto / (distance + 3);
+
+                        waterLevels[neighborRow][neighborCol] = lerp(
+                            waterLevels[neighborRow][neighborCol],
+                            max(waterLevels[neighborRow][neighborCol] - adjustedImpacto, waterLevel),
+                            0.8
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
   int contarAgentesEnCelda(int row, int col) {
       int count = 0;
       for (AgentSystem3D system : systems) { 

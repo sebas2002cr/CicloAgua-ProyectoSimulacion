@@ -1,6 +1,3 @@
-Sol sol;
-Nube nube;
-
 boolean generatingAgents = true;
 boolean isRaining = false;
 boolean rainCycleActive = false;
@@ -32,7 +29,8 @@ float waterLevel = 280;
 float[][] waterLevels; 
 
 
-
+Sol sol;
+Nube nube;
 
 
 void setup() {
@@ -66,7 +64,6 @@ void setup() {
 
 }
 
-
 void draw() {
     background(135, 206, 235); 
     lights();
@@ -75,7 +72,7 @@ void draw() {
     
     float[][] terrainHeights = new float[rows][cols]; 
 
-
+    // Dibujar el terreno
     for (int r = 0; r < rows - 1; r++) {
         beginShape(TRIANGLE_STRIP);
         for (int c = 0; c < cols; c++) {
@@ -104,8 +101,7 @@ void draw() {
                 color terrainColor = lerpColor(color(34, 139, 34), color(255, 223, 0), t); // verde a amarillo
                 fill(terrainColor);
             } else {
-
-              float t = map(y1, 0, heightScale, 0, 1);
+                float t = map(y1, 0, heightScale, 0, 1);
                 color terrainColor = lerpColor(color(34, 139, 34), color(139, 69, 19), t); // verde a café
                 fill(terrainColor);
             }
@@ -115,38 +111,47 @@ void draw() {
             vertex(x, 350 - y1, z); 
             vertex(x, 350 - y2, z + (1600 / (rows - 1))); 
             terrainHeights[r][c] = 350 - y1;  
-
-      
-    
-  }
+        }
         endShape();
     }
     
-    float cellOffsetX = (1600 / (cols - 1)) / 2 * 1.05;  
-    float cellOffsetZ = (1600 / (rows - 1)) / 2 * 1.05;
+    // Ajustar las celdas de agua
+    float cellOffsetX = (1600 / (cols - 1)) / 2;  
+    float cellOffsetZ = (1600 / (rows - 1)) / 2;
 
     fill(0, 0, 255, 150); 
     noStroke();
 
     for (int r = 0; r < rows; r++) {
         for (int c = 0; c < cols; c++) {
+          
+          
+          
             float x = map(c, 0, cols - 1, -800, 800);
             float z = map(r, 0, rows - 1, -800, 800);
             
             float terrainHeight = terrainHeights[r][c]; 
             float currentWaterLevel = waterLevels[r][c]; 
 
-if (currentWaterLevel < terrainHeight) {
-    beginShape(QUADS);
-    vertex(x - cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-    vertex(x + cellOffsetX, currentWaterLevel, z - cellOffsetZ);
-    vertex(x + cellOffsetX, currentWaterLevel, z + cellOffsetZ);
-    vertex(x - cellOffsetX, currentWaterLevel, z + cellOffsetZ);
-    endShape();
-}
+            if (currentWaterLevel < terrainHeight) {
+                float adjustedOffsetX = cellOffsetX;
+                float adjustedOffsetZ = cellOffsetZ;
 
+                // Ajustar el tamaño de las celdas en los bordes
+                if (c == 0 || c == cols - 1) {
+                    adjustedOffsetX = (1600 / (cols - 1)) / 1000; 
+                }
+                if (r == 0 || r == rows - 1) {
+                    adjustedOffsetZ = (1600 / (rows - 1)) / 1000; 
+                }
 
-
+                beginShape(QUADS);
+                vertex(x - adjustedOffsetX, currentWaterLevel, z - adjustedOffsetZ);
+                vertex(x + adjustedOffsetX, currentWaterLevel, z - adjustedOffsetZ);
+                vertex(x + adjustedOffsetX, currentWaterLevel, z + adjustedOffsetZ);
+                vertex(x - adjustedOffsetX, currentWaterLevel, z + adjustedOffsetZ);
+                endShape();
+            }
         }
     }
 
@@ -165,8 +170,6 @@ if (currentWaterLevel < terrainHeight) {
     // Manejar el ciclo de lluvia
     handleRainCycle();
 
-
-
     for (int i = systems.size() - 1; i >= 0; i--) {
         AgentSystem3D s = systems.get(i);
         for (int j = s.agents.size() - 1; j >= 0; j--) {
@@ -180,10 +183,11 @@ if (currentWaterLevel < terrainHeight) {
         s.run();  
     }
     
-      if (showStatistics) {
+    if (showStatistics) {
         displayStatistics();
     }
 }
+
 
 void handleRainCycle() {
     if (rainCycleActive) {
@@ -282,35 +286,46 @@ void colocarAgua() {
 }
 
 void drawWalls() {
-  beginShape(QUADS);
-  vertex(-800, 300, -800); 
-  vertex(800, 300, -800);
-  vertex(800, -300, -800); 
-  vertex(-800, -300, -800);
-  endShape();
-  
-  beginShape(QUADS);
-  vertex(-800, 300, 800); 
-  vertex(800, 300, 800);
-  vertex(800, -300, 800); 
-  vertex(-800, -300, 800);
-  endShape();
-  
-  beginShape(QUADS);
-  vertex(-800, 300, -800); 
-  vertex(-800, 300, 800);
-  vertex(-800, -300, 800); 
-  vertex(-800, -300, -800);
-  endShape();
-  
-  beginShape(QUADS);
-  vertex(800, 300, -800); 
-  vertex(800, 300, 800);
-  vertex(800, -300, 800); 
-  vertex(800, -300, -800);
-  endShape();
+  // Dibujar visualmente las paredes más pequeñas (por ejemplo, la mitad de la altura original)
+  float visualHeight = 150; // Altura visual reducida de las paredes
+ float wallThickness = 50;
+ 
+  fill(200, 200, 200); // Color para las paredes (puedes ajustar este color)
+  noStroke(); 
 
+  // Pared frontal (inicia desde el suelo a 300 y sube hasta visualHeight)
+  beginShape(QUADS);
+  vertex(-800, 400, -800); 
+  vertex(800, 400, -800);
+  vertex(800, 400 - visualHeight, -800); 
+  vertex(-800, 400 - visualHeight, -800);
+  endShape();
+  
+  // Pared trasera (inicia desde el suelo a 300 y sube hasta visualHeight)
+  beginShape(QUADS);
+  vertex(-800, 400, 800); 
+  vertex(800, 400, 800);
+  vertex(800, 400 - visualHeight, 800); 
+  vertex(-800, 400 - visualHeight, 800);
+  endShape();
+  
+  // Pared izquierda (inicia desde el suelo a 300 y sube hasta visualHeight)
+  beginShape(QUADS);
+  vertex(-800, 400, -800); 
+  vertex(-800, 400, 800);
+  vertex(-800, 400 - visualHeight, 800); 
+  vertex(-800, 400 - visualHeight, -800);
+  endShape();
+  
+  // Pared derecha (inicia desde el suelo a 300 y sube hasta visualHeight)
+  beginShape(QUADS);
+  vertex(800, 400, -800); 
+  vertex(800, 400, 800);
+  vertex(800, 400 - visualHeight, 800); 
+  vertex(800, 400 - visualHeight, -800);
+  endShape();
 }
+
 
 
 void keyPressed() {
