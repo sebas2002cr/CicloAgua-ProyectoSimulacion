@@ -61,8 +61,8 @@ class Agent3D {
     c = color(255, 255, 255, 255); 
     
     
-    fallDelay = random(2000, 8000) + random(-1000, 1000); 
-    lastFallAttempt = millis() + int(random(-1000, 1000));
+    fallDelay = random(2000, 8000); // Retraso aleatorio para el comienzo de la caída
+    lastFallAttempt = millis() + int(random(-1000, 1000)); 
 
     mass = random(500, 800);
     massLoss = 0.8;

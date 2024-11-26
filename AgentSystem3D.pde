@@ -49,10 +49,7 @@ class AgentSystem3D {
       flockingStarted = true;
     }
     
-    if (millis() - flockingStartTime > 30000 && isRaining) {  
-      releaseSomeParticles();
-    }
-    
+
     for (Agent3D a : agents) {
       if (a.isActive && a.pos.y < flockingHeight) { 
         flocking();
@@ -66,16 +63,7 @@ class AgentSystem3D {
     addAgent();
   }
 
-  void releaseSomeParticles() {
-    if (!isRaining) return; 
 
-    for (int i = 0; i < agents.size(); i++) {
-      if (random(1) < 0.05) {  
-        agents.get(i).isFalling = true;
-        agents.get(i).isActive = false;
-      }
-    }
-  }
 
   void addAgent() {
     if (!generatingAgents) return;  
