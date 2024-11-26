@@ -46,11 +46,11 @@ class Agent3D {
   float alignmentRadio = 80;
   float alignmentRatio = 0.2;
 
-  float separationRadio = 40; 
+  float separationRadio = 15; 
   float separationRatio = 1.0;
 
-  float cohesionRadio = 120;
-  float cohesionRatio = 2;
+  float cohesionRadio = 180;
+  float cohesionRatio = 4;
   
   float fallDelay;
     int lastFallAttempt;
